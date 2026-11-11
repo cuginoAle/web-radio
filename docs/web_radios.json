@@ -1,0 +1,198 @@
+[
+  {
+    "name": "Italian Graffiati",
+    "genre": "Musica Italiana",
+    "country": "Italia",
+    "url": "https://www.italiangraffiati.com",
+    "description": "Dedicata ai classici e alla musica italiana del passato."
+  },
+  {
+    "name": "Rock Zone",
+    "genre": "Rock e Alternative",
+    "country": "Italia",
+    "url": "https://www.rockzone.it",
+    "description": "Indipendente, propone rock alternativo, garage e indie."
+  },
+  {
+    "name": "Virgin Radio Rock 70",
+    "genre": "Rock Anni '70",
+    "country": "Italia",
+    "url": "https://www.virginradio.it",
+    "description": "Canale tematico del network dedicato all'hard rock e al rock anni '70."
+  },
+  {
+    "name": "Classic FM",
+    "genre": "Musica Classica",
+    "country": "Regno Unito",
+    "url": "https://www.classicfm.com",
+    "description": "La più grande stazione radiofonica di musica classica al mondo, rende il genere accessibile a tutti."
+  },
+  {
+    "name": "BBC Radio 3",
+    "genre": "Musica Classica",
+    "country": "Regno Unito",
+    "url": "https://www.bbc.co.uk/radio3",
+    "description": "Celebre per la trasmissione di esibizioni orchestrali e corali dal vivo."
+  },
+  {
+    "name": "WQXR",
+    "genre": "Musica Classica",
+    "country": "Stati Uniti",
+    "url": "https://www.wqxr.org",
+    "description": "L'emittente classica di New York City per eccellenza, con produzioni della NY Philharmonic."
+  },
+  {
+    "name": "All Classical Radio (KQAC)",
+    "genre": "Musica Classica",
+    "country": "Stati Uniti",
+    "url": "https://www.allclassical.org",
+    "description": "Stazione indipendente basata a Portland con un palinsesto raffinato."
+  },
+  {
+    "name": "Classical KING",
+    "genre": "Musica Classica",
+    "country": "Stati Uniti",
+    "url": "https://www.king.org",
+    "description": "Trasmette da Seattle, con grande attenzione alle registrazioni di concerti dal vivo."
+  },
+  {
+    "name": "Radio Swiss Jazz",
+    "genre": "Jazz",
+    "country": "Svizzera",
+    "url": "https://www.radioswissjazz.ch",
+    "description": "Emittente pubblica svizzera idolatrata dagli audiofili: nessuna pubblicità, rotazione di standard, swing, bebop e soul."
+  },
+  {
+    "name": "WBGO Jazz",
+    "genre": "Jazz",
+    "country": "Stati Uniti",
+    "url": "https://www.wbgo.org",
+    "description": "Dall'area di Newark/New York, offre un mix di artisti classici, contemporanei ed emergenti."
+  },
+  {
+    "name": "TSF Jazz",
+    "genre": "Jazz",
+    "country": "Francia",
+    "url": "https://www.tsfjazz.com",
+    "description": "Una delle emittenti europee di maggior successo per il panorama jazzistico."
+  },
+  {
+    "name": "KCSM Jazz",
+    "genre": "Jazz",
+    "country": "Stati Uniti",
+    "url": "https://kcsm.org",
+    "description": "Dalla Bay Area, trasmette 24/7 bebop, latin jazz, vocal senza interruzioni commerciali."
+  },
+  {
+    "name": "The Jazz Groove",
+    "genre": "Jazz",
+    "country": "Stati Uniti",
+    "url": "https://jazzgroove.org",
+    "description": "Stazione web senza pubblicità specializzata in smooth jazz e jazz contemporaneo."
+  },
+  {
+    "name": "WWOZ",
+    "genre": "Blues / Jazz / Roots",
+    "country": "Stati Uniti",
+    "url": "https://www.wwoz.org",
+    "description": "Stazione leggendaria di New Orleans, punto di riferimento per il blues, il soul e l'r&b."
+  },
+  {
+    "name": "1.FM Blues",
+    "genre": "Blues",
+    "country": "Svizzera",
+    "url": "https://www.1.fm/station/blues",
+    "description": "Canale dedicato al blues del grande network svizzero 1.FM, senza interruzioni parlate."
+  },
+  {
+    "name": "Jazz Radio Blues",
+    "genre": "Blues",
+    "country": "Francia",
+    "url": "https://www.jazzradio.fr",
+    "description": "Costola web del network francese, miscela pionieri americani e artisti blues internazionali."
+  },
+  {
+    "name": "Amazing Blues",
+    "genre": "Blues",
+    "country": "Globale",
+    "url": "https://amazingradio.com",
+    "description": "Trasmissioni ad alta fedeltà di brani blues storici e contemporanei."
+  },
+  {
+    "name": "RTBF Classic 21 Blues",
+    "genre": "Blues",
+    "country": "Belgio",
+    "url": "https://www.rtbf.be/classic21",
+    "description": "Canale web della radio pubblica belga con la migliore selezione blues non-stop."
+  },
+  {
+    "name": "Absolute Radio 70s",
+    "genre": "Anni '70",
+    "country": "Regno Unito",
+    "url": "https://planetradio.co.uk/absolute-radio-70s/",
+    "description": "Vera radio con DJ che trasmette 24/7 il meglio del rock, pop e disco del decennio."
+  },
+  {
+    "name": "181.FM Super 70s",
+    "genre": "Anni '70",
+    "country": "Stati Uniti",
+    "url": "https://www.181.fm",
+    "description": "Trasmette a ciclo continuo tutti i più grandi successi da classifica degli anni '70."
+  },
+  {
+    "name": "Heart 70s",
+    "genre": "Anni '70",
+    "country": "Regno Unito",
+    "url": "https://www.globalplayer.com/live/heart70s/",
+    "description": "Orientata ai ritmi più allegri, hit pop e icone della disco music degli anni '70."
+  },
+  {
+    "name": "AccuRadio 70s Classic Rock",
+    "genre": "Anni '70 / Rock",
+    "country": "Stati Uniti",
+    "url": "https://www.accuradio.com/70s-rock/",
+    "description": "Offre il meglio di band rock iconiche e suona i brani meno commerciali degli album."
+  },
+  {
+    "name": "FluxFM 70s",
+    "genre": "Anni '70",
+    "country": "Germania",
+    "url": "https://www.fluxfm.de",
+    "description": "Emittente berlinese con una visione eclettica e alternativa degli anni '70 in streaming ad alta qualità."
+  },
+  {
+    "name": "Morow",
+    "genre": "Rock Progressivo",
+    "country": "Francia",
+    "url": "https://www.morow.com",
+    "description": "Trasmette 24 ore su 24 una selezione impeccabile che spazia dai giganti del genere fino alle nuove uscite neo-prog e symphonic rock."
+  },
+  {
+    "name": "Progrock.com",
+    "genre": "Rock Progressivo",
+    "country": "Stati Uniti",
+    "url": "https://progrock.com",
+    "description": "Offre un ricco palinsesto con veri DJ, interviste, podcast e programmi tematici sui vari sottogeneri del prog."
+  },
+  {
+    "name": "Aural Moon",
+    "genre": "Rock Progressivo",
+    "country": "Globale",
+    "url": "https://auralmoon.com",
+    "description": "Catalogo vastissimo che mescola il progressive rock classico con le sonorità più moderne, sperimentali e d'avanguardia."
+  },
+  {
+    "name": "ISKC Rock Radio",
+    "genre": "Rock Progressivo",
+    "country": "Paesi Bassi",
+    "url": "https://www.iskc.nl",
+    "description": "Acronimo di Internet Symphony, Kraut & Classic Rock, celebre tra gli audiofili per i suoi flussi in altissima qualità."
+  },
+  {
+    "name": "Delicious Agony",
+    "genre": "Rock Progressivo",
+    "country": "Stati Uniti",
+    "url": "https://deliciousagony.com",
+    "description": "Stazione web indipendente con una profonda libreria musicale che abbraccia il prog tradizionale e il progressive metal."
+  }
+]
