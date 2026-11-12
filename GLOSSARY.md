@@ -49,7 +49,7 @@ _Avoid_: preferito orfano, preferito rotto
 ## Ascolto
 
 **Sessione audio** (`AudioSession`):
-L'unica istanza di riproduzione dell'app, condivisa da mini-player, player completo, pannello tablet e controlli di sistema.
+L'unica istanza di riproduzione dell'app, condivisa da mini-player, player completo, pannello laterale e controlli di sistema.
 _Avoid_: player (per l'istanza), riproduttore
 
 **Elenco di origine** (`SourceList`):

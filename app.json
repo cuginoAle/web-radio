@@ -54,6 +54,12 @@
       ],
       "expo-sqlite",
       [
+        "expo-navigation-bar",
+        {
+          "hidden": true
+        }
+      ],
+      [
         "expo-font",
         {
           "fonts": [

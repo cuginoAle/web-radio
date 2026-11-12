@@ -27,7 +27,7 @@ export function AppShell() {
         </View>
         {isWide ? (
           <View style={styles.panel}>
-            <PlayerPanel />
+            <PlayerPanel side />
           </View>
         ) : null}
         {isWide ? null : <MiniPlayer />}

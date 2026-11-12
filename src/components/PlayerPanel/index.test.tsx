@@ -80,6 +80,71 @@ describe('PlayerPanel', () => {
   });
 });
 
+describe('PlayerPanel as side panel (landscape)', () => {
+  it('shows only artwork, title and heart: no status, no previous/next', async () => {
+    const { player } = await listening();
+    await render(<PlayerPanel side />);
+    await act(async () => player.emitPlaying());
+
+    expect(screen.getByText('Radio a')).toBeOnTheScreen();
+    expect(screen.getByRole('button', { name: 'Aggiungi ai preferiti' })).toBeOnTheScreen();
+    expect(screen.queryByText('LIVE')).toBeNull();
+    expect(screen.queryByText('Radio in diretta')).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Radio precedente' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Radio successiva' })).toBeNull();
+  });
+
+  it('the artwork pauses and resumes, showing bars or a triangle', async () => {
+    const { player, state } = await listening();
+    await render(<PlayerPanel side />);
+    await act(async () => player.emitPlaying());
+    expect(screen.getByTestId('glyph-pause')).toBeOnTheScreen();
+
+    await fireEvent.press(screen.getByRole('button', { name: 'Metti in pausa' }));
+    expect(state().player.status).toBe('paused');
+    expect(screen.getByTestId('glyph-play')).toBeOnTheScreen();
+
+    await fireEvent.press(screen.getByRole('button', { name: 'Riprendi' }));
+    expect(state().player.status).toBe('loading');
+    expect(screen.getByTestId('glyph-loading')).toBeOnTheScreen();
+  });
+
+  it('on error shows the message and an exclamation mark; the artwork retries', async () => {
+    const { player, state } = await listening();
+    await render(<PlayerPanel side />);
+    await act(async () => player.emitError());
+
+    expect(screen.getByText(/Impossibile riprodurre/)).toBeOnTheScreen();
+    expect(screen.queryByText('Riprova')).toBeNull();
+    expect(screen.getByTestId('glyph-error')).toBeOnTheScreen();
+    await fireEvent.press(screen.getByRole('button', { name: 'Riprova' }));
+    expect(state().player.status).toBe('loading');
+  });
+
+  it('bars and triangle fade out after 3 s; spinner and exclamation mark stay', async () => {
+    const { player } = await listening();
+    await render(<PlayerPanel side />);
+    jest.useFakeTimers();
+    try {
+      await act(async () => jest.advanceTimersByTime(5000));
+      expect(screen.getByTestId('glyph-loading')).toBeOnTheScreen();
+
+      await act(async () => player.emitError());
+      await act(async () => jest.advanceTimersByTime(5000));
+      expect(screen.getByTestId('glyph-error')).toBeOnTheScreen();
+
+      await fireEvent.press(screen.getByRole('button', { name: 'Riprova' }));
+      await act(async () => player.emitPlaying());
+      await act(async () => jest.advanceTimersByTime(2900));
+      expect(screen.getByTestId('glyph-pause')).toBeOnTheScreen();
+      await act(async () => jest.advanceTimersByTime(600));
+      expect(screen.queryByTestId('glyph-pause')).toBeNull();
+    } finally {
+      jest.useRealTimers();
+    }
+  });
+});
+
 describe('MiniPlayer', () => {
   it('is absent when nothing is selected', async () => {
     await startTestApp(catalog);

@@ -221,18 +221,18 @@ describe('Catalog section', () => {
 });
 
 describe('Full player route', () => {
-  it('stays open on a phone in landscape: there is no room for three columns', async () => {
+  it('stays open in portrait: there is no room for three columns', async () => {
     await startTestApp();
-    jest.spyOn(Dimensions, 'get').mockReturnValue({ width: 915, height: 411, scale: 2.6, fontScale: 1 });
+    jest.spyOn(Dimensions, 'get').mockReturnValue({ width: 411, height: 915, scale: 2.6, fontScale: 1 });
     await render(<PlayerScreen />);
     await act(async () => {});
     expect(router.back).not.toHaveBeenCalled();
     jest.restoreAllMocks();
   });
 
-  it('closes itself when the layout becomes wide: the side panel takes over', async () => {
+  it('closes itself in landscape, even on a short car box: the side panel takes over', async () => {
     await startTestApp();
-    jest.spyOn(Dimensions, 'get').mockReturnValue({ width: 1200, height: 800, scale: 2, fontScale: 1 });
+    jest.spyOn(Dimensions, 'get').mockReturnValue({ width: 1024, height: 552, scale: 1, fontScale: 1 });
     await render(<PlayerScreen />);
     await act(async () => {});
     expect(router.back).toHaveBeenCalled();

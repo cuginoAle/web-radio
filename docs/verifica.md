@@ -68,7 +68,7 @@ Legenda: **T** test automatici, **E** emulatore, **F** telefono fisico.
 ## Limiti residui
 
 - Le prove su telefono risalgono alla build dello spike: la sessione audio è la stessa, ma l'app completa non è stata ancora provata a schermo bloccato.
-- Il layout a tre colonne richiede almeno 900×600 dp in unità scalate: un telefono grande in landscape resta compatto, altrimenti i controlli del player finirebbero sotto la piega.
+- Il layout a tre colonne si attiva con qualsiasi finestra landscape (anche telefoni e car box bassi): nel pannello laterale l'artwork è l'unico controllo (pausa / riprendi / riprova), senza stato né precedente/successiva: per cambiare radio si tocca l'elenco.
 - Cambiare la densità dello schermo con l'app aperta ricrea l'Activity e riporta su Scopri (ricerca e audio restano). La rotazione non è interessata.
 - HLS senza `.m3u8` e file `.pls`/`.m3u` mostrano un errore.
 - Radio Browser oggi espone un solo mirror verificato: se è giù, il download non è possibile.

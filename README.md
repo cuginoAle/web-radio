@@ -2,6 +2,8 @@
 
 Player di web radio per Android (smartphone e tablet landscape), in italiano. Il catalogo viene scaricato da [Radio Browser](https://www.radio-browser.info/) e salvato sul dispositivo: ricerca, generi/tag e preferiti funzionano offline, l'audio è sempre in streaming.
 
+Pensato anche per i box auto: la barra di navigazione di Android è nascosta dall'avvio e, nel layout largo, la barra laterale ha un orologio e un tasto "Torna alle app" che manda l'app in background senza fermare l'audio.
+
 Specifica: [docs/radio-handover/web-radio-react-native-handover.md](docs/radio-handover/web-radio-react-native-handover.md). Linguaggio di dominio: [GLOSSARY.md](GLOSSARY.md). Decisioni: [docs/adr/](docs/adr/). Prove native: [docs/spike-audio.md](docs/spike-audio.md).
 
 ## Requisiti
