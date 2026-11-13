@@ -1,5 +1,5 @@
 import { TabTrigger } from 'expo-router/ui';
-import { Text, View } from 'react-native';
+import { View } from 'react-native';
 
 import { Clock } from '@/components/Clock';
 import { LauncherButton } from '@/screens/shell/NavBar/LauncherButton';
@@ -13,16 +13,19 @@ const ITEMS: { name: string; label: string; icon: IconName; activeIcon: IconName
 ];
 
 export function NavBar({ rail }: { rail: boolean }) {
+  const tabs = ITEMS.map(({ name, ...item }) => (
+    <TabTrigger key={name} name={name} asChild>
+      <NavItem {...item} rail={rail} />
+    </TabTrigger>
+  ));
+  if (!rail) return <View style={styles.bottom}>{tabs}</View>;
   return (
-    <View style={rail ? styles.rail : styles.bottom}>
-      {rail ? <LauncherButton /> : null}
-      {rail ? <Clock /> : null}
-      {rail ? <Text style={styles.brand}>RADIO</Text> : null}
-      {ITEMS.map(({ name, ...item }) => (
-        <TabTrigger key={name} name={name} asChild>
-          <NavItem {...item} rail={rail} />
-        </TabTrigger>
-      ))}
+    <View style={styles.rail}>
+      <View style={styles.railItems}>
+        <Clock />
+        {tabs}
+      </View>
+      <LauncherButton />
     </View>
   );
 }

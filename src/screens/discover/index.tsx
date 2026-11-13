@@ -1,27 +1,25 @@
-import { EmptyState } from '@/components/EmptyState';
-import { StationList } from '@/components/StationList';
-import { listStationUuids } from '@/db/queries/stations';
-import { useStationList } from '@/hooks/stations/useStationList';
+import { ScrollView } from 'react-native';
+
+import type { FavoriteItem } from '@/db/queries/favorites';
+import { useTopFavorites } from '@/hooks/favorites/useTopFavorites';
 import { openTag } from '@/hooks/stations/useOpenTag';
 import { useTags } from '@/hooks/stations/useTags';
 import { DiscoverHeader } from '@/screens/discover/DiscoverHeader';
-import { getRuntime } from '@/services/runtime';
+import { styles } from '@/screens/discover/styles';
+import { playFromList } from '@/services/audio/playFromList';
 
 const TOP_TAGS = 12;
 
-const loadAllUuids = () => listStationUuids(getRuntime().db, {});
-
 export function DiscoverScreen() {
   const tags = useTags(TOP_TAGS);
-  const list = useStationList({});
+  const topFavorites = useTopFavorites();
+
+  // Previous / next move among the pills (GLOSSARY: Elenco di origine).
+  const play = (station: FavoriteItem) => void playFromList(station, async () => topFavorites.map((f) => f.uuid));
 
   return (
-    <StationList
-      items={list.items}
-      rowOptions={() => ({ loadUuids: loadAllUuids })}
-      onEndReached={list.loadMore}
-      header={<DiscoverHeader tags={tags} onOpenTag={openTag} />}
-      empty={list.status === 'error' ? <EmptyState title="Errore del database" actionLabel="Riprova" onAction={list.retry} /> : null}
-    />
+    <ScrollView contentContainerStyle={styles.content}>
+      <DiscoverHeader tags={tags} onOpenTag={openTag} topFavorites={topFavorites} onPlayFavorite={play} />
+    </ScrollView>
   );
 }

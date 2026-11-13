@@ -5,3 +5,6 @@ export const router = {
   back: jest.fn(),
   canGoBack: jest.fn(() => true),
 };
+
+// A rendered screen under test is the focused one.
+export const useIsFocused = () => true;

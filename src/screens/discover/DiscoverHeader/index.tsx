@@ -4,16 +4,20 @@ import { Pressable, Text, View } from 'react-native';
 import { IconButton } from '@/components/IconButton';
 import { ScreenTitle } from '@/components/ScreenTitle';
 import { TagTile } from '@/components/TagTile';
+import type { FavoriteItem } from '@/db/queries/favorites';
 import type { TagGroup } from '@/db/queries/stations';
 import { useIsWideLayout } from '@/hooks/layout/useIsWideLayout';
 import { styles } from '@/screens/discover/DiscoverHeader/styles';
+import { FavoritePill } from '@/screens/discover/FavoritePill';
 
 type Props = {
   tags: TagGroup[];
   onOpenTag: (tag: TagGroup) => void;
+  topFavorites: FavoriteItem[];
+  onPlayFavorite: (station: FavoriteItem) => void;
 };
 
-export function DiscoverHeader({ tags, onOpenTag }: Props) {
+export function DiscoverHeader({ tags, onOpenTag, topFavorites, onPlayFavorite }: Props) {
   const isWide = useIsWideLayout();
   return (
     <View style={styles.root}>
@@ -22,6 +26,18 @@ export function DiscoverHeader({ tags, onOpenTag }: Props) {
         <IconButton icon="information-circle-outline" label="Catalogo radio" onPress={() => router.push('/catalog')} />
       </View>
       <ScreenTitle title="La tua frequenza." subtitle="Il suono giusto, adesso." />
+      {topFavorites.length > 0 ? (
+        <>
+          <Text style={styles.section} accessibilityRole="header">
+            I più ascoltati
+          </Text>
+          <View style={styles.grid}>
+            {topFavorites.map((station) => (
+              <FavoritePill key={station.uuid} name={station.name} favicon={station.favicon} onPress={() => onPlayFavorite(station)} />
+            ))}
+          </View>
+        </>
+      ) : null}
       <View style={styles.sectionRow}>
         <Text style={styles.section} accessibilityRole="header">
           Generi e tag
@@ -35,9 +51,6 @@ export function DiscoverHeader({ tags, onOpenTag }: Props) {
           <TagTile key={tag.key} label={tag.label} count={tag.count} onPress={() => onOpenTag(tag)} />
         ))}
       </View>
-      <Text style={styles.section} accessibilityRole="header">
-        Tutte le radio
-      </Text>
     </View>
   );
 }

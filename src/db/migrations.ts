@@ -53,7 +53,15 @@ CREATE TABLE app_metadata (
 );
 `;
 
-const MIGRATIONS = [V1];
+// Keyed by station, not by favorite: time counts before a station is saved and survives its removal.
+const V2 = `
+CREATE TABLE listening_time (
+  uuid TEXT PRIMARY KEY NOT NULL,
+  seconds REAL NOT NULL
+);
+`;
+
+const MIGRATIONS = [V1, V2];
 
 /** Brings the schema to the latest version (PRAGMA user_version). */
 export async function migrate(db: Db) {

@@ -55,3 +55,11 @@ _Avoid_: player (per l'istanza), riproduttore
 **Elenco di origine** (`SourceList`):
 La lista di UUID, congelata all'avvio dell'ascolto, da cui precedente e successiva scelgono la stazione adiacente.
 _Avoid_: coda, playlist, scaletta
+
+**Ascolto cumulato** (`ListeningTime`):
+Il totale, da sempre, dei secondi in cui l'audio di una stazione è stato effettivamente udibile; vale per qualsiasi stazione, preferita o no. Caricamento, buffering e pausa non contano.
+_Avoid_: tempo di riproduzione, cronologia, statistiche
+
+**Preferito più ascoltato** (`TopFavorite`):
+Uno dei (al massimo) sei preferiti con l'ascolto cumulato più alto, purché maggiore di zero. Nell'interfaccia: "I più ascoltati".
+_Avoid_: top fav, preferito principale

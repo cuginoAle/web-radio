@@ -4,10 +4,12 @@ import { openDatabaseAsync } from 'expo-sqlite';
 
 import { prepareDatabase } from '@/db/prepareDatabase';
 import { getMetadata } from '@/db/queries/catalog';
+import { addListeningTime } from '@/db/queries/listeningTime';
 import { getStation } from '@/db/queries/stations';
 import { seedDefaultFavorites } from '@/db/writes/seedDefaultFavorites';
 import { toSnapshot } from '@/helpers/player/toSnapshot';
 import { createAudioSession } from '@/services/audio/createAudioSession';
+import { trackListening } from '@/services/audio/trackListening';
 import { createCatalogSync } from '@/services/catalog-sync/createCatalogSync';
 import { loadCatalogState } from '@/services/catalog-sync/loadCatalogState';
 import { createRadioBrowserClient } from '@/services/radio-browser/createRadioBrowserClient';
@@ -37,6 +39,7 @@ export async function bootstrap() {
       return station && toSnapshot(station);
     },
   });
+  trackListening(globalStore, (uuid, seconds) => void addListeningTime(db, uuid, seconds).catch(() => undefined));
   await setAudioModeAsync({
     shouldPlayInBackground: true,
     interruptionMode: 'doNotMixPersistent', // full audio focus, required for lock screen controls

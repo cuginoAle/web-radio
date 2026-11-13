@@ -3,6 +3,7 @@ import { Dimensions } from 'react-native';
 
 import { getStation } from '@/db/queries/stations';
 import { addFavorite } from '@/db/queries/favorites';
+import { addListeningTime } from '@/db/queries/listeningTime';
 import { CatalogScreen } from '@/screens/catalog';
 import { DiscoverScreen } from '@/screens/discover';
 import { FavoritesScreen } from '@/screens/favorites';
@@ -11,6 +12,7 @@ import { SearchScreen } from '@/screens/search';
 import { TagsScreen } from '@/screens/tags';
 import { WelcomeScreen } from '@/screens/welcome';
 import { loadCatalogState } from '@/services/catalog-sync/loadCatalogState';
+import { toggleFavorite } from '@/services/favorites/toggleFavorite';
 import { router } from '@test/fakes/fakeRouter';
 import { rawStations } from '@test/fakes/fakeDirectory';
 import { rawStation } from '@test/fixtures/radioBrowserStation';
@@ -70,22 +72,57 @@ describe('Welcome (no local catalog)', () => {
 describe('Discover', () => {
   const catalog = [radio('a', 'Alfa', 'Jazz,Soul'), radio('b', 'Beta', 'jazz'), radio('c', 'Gamma', 'Rock')];
 
-  it('shows tag groups with real counts and all the radios, with no invented picks', async () => {
+  it('shows tag groups with real counts and no list of all the radios, with no invented picks', async () => {
     await startTestApp(catalog);
     await render(<DiscoverScreen />);
 
     expect(await screen.findByRole('button', { name: /^Jazz, 2 radio|^jazz, 2 radio/i })).toBeOnTheScreen();
-    expect(await screen.findByText('Alfa')).toBeOnTheScreen();
-    expect(screen.getByText('Tutte le radio')).toBeOnTheScreen();
+    expect(screen.queryByText('Alfa')).toBeNull();
+    expect(screen.queryByText('Tutte le radio')).toBeNull();
+    expect(screen.queryByText('I più ascoltati')).toBeNull(); // nothing listened yet
     expect(screen.queryByText('Scelte per te')).toBeNull();
     expect(screen.queryByText('Midnight Jazz')).toBeNull();
   });
 
-  it('leaves the brand to the side rail in the three-column layout', async () => {
+  it('shows the three most listened favorites before the tags, and a tap plays among them', async () => {
+    const { db, state } = await startTestApp([...catalog, radio('d', 'Delta')]);
+    for (const [uuid, seconds] of [['a', 10], ['b', 40], ['c', 30], ['d', 20]] as const) {
+      await addFavorite(db, (await getStation(db, uuid))!);
+      await addListeningTime(db, uuid, seconds);
+    }
+    await loadCatalogState();
+    await render(<DiscoverScreen />);
+
+    await screen.findByRole('button', { name: 'Ascolta Beta' });
+    const pills = screen.getAllByRole('button', { name: /^Ascolta / }).map((b) => b.props.accessibilityLabel);
+    expect(pills).toEqual(['Ascolta Beta', 'Ascolta Gamma', 'Ascolta Delta']);
+    expect(screen.getAllByText(/^(I più ascoltati|Generi e tag)$/).map((t) => t.props.children)).toEqual([
+      'I più ascoltati',
+      'Generi e tag',
+    ]);
+
+    await fireEvent.press(screen.getByRole('button', { name: 'Ascolta Gamma' }));
+    await waitFor(() => expect(state().player.station?.uuid).toBe('c'));
+    expect(state().player).toMatchObject({ canPrevious: true, canNext: true });
+  });
+
+  it('a station listened to before being saved joins the section once it is a favorite', async () => {
+    const { db } = await startTestApp(catalog);
+    await addListeningTime(db, 'a', 60);
+    await render(<DiscoverScreen />);
+    await screen.findByRole('button', { name: 'Rock, 1 radio' });
+    expect(screen.queryByText('I più ascoltati')).toBeNull();
+
+    const alfa = (await getStation(db, 'a'))!;
+    await act(() => toggleFavorite(alfa));
+    expect(await screen.findByRole('button', { name: 'Ascolta Alfa' })).toBeOnTheScreen();
+  });
+
+  it('shows no brand in the three-column layout', async () => {
     await startTestApp(catalog);
     jest.spyOn(Dimensions, 'get').mockReturnValue({ width: 1280, height: 800, scale: 2, fontScale: 1 });
     await render(<DiscoverScreen />);
-    expect(await screen.findByText('Alfa')).toBeOnTheScreen();
+    expect(await screen.findByRole('button', { name: 'Rock, 1 radio' })).toBeOnTheScreen();
     expect(screen.queryByText('RADIO')).toBeNull();
     jest.restoreAllMocks();
   });
