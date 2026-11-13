@@ -2,11 +2,9 @@ import { StyleSheet } from 'react-native';
 
 import { colors, fonts, fontSizes, radius, spacing, TOUCH_TARGET } from '@/theme/tokens';
 
-// Same footprint as TagTile, so the two grids line up.
 export const styles = StyleSheet.create({
   pill: {
-    flexBasis: 140,
-    flexGrow: 1,
+    flex: 1,
     minHeight: TOUCH_TARGET + 16,
     flexDirection: 'row',
     alignItems: 'center',

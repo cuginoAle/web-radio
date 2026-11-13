@@ -1,8 +1,8 @@
 import { router } from 'expo-router';
-import { View } from 'react-native';
+import { Text, View } from 'react-native';
 
 import { EmptyState } from '@/components/EmptyState';
-import { ScreenTitle } from '@/components/ScreenTitle';
+import { Logo } from '@/components/Logo';
 import { StationList } from '@/components/StationList';
 import type { FavoriteItem } from '@/db/queries/favorites';
 import { useFavoriteList } from '@/hooks/favorites/useFavoriteList';
@@ -36,7 +36,8 @@ export function FavoritesScreen() {
   return (
     <View style={styles.root}>
       <View style={styles.header}>
-        <ScreenTitle title="Le tue radio" subtitle={items.length > 0 ? countLabel(items.length) : undefined} />
+        <Logo />
+        {items.length > 0 ? <Text style={styles.count}>{countLabel(items.length)}</Text> : null}
       </View>
       {status === 'error' ? (
         <EmptyState title="Errore del database" actionLabel="Riprova" onAction={retry} />

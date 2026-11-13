@@ -46,8 +46,8 @@ export function createAudioSession({ player, store, reportClick, resolveStation 
     }
   };
 
-  const showOnLockScreen = (station: StationSnapshot) => {
-    const metadata = { title: station.name, artist: LIVE_LABEL, artworkUrl: station.favicon ?? undefined };
+  const showOnLockScreen = (station: StationSnapshot, nowPlaying: string | null = null) => {
+    const metadata = { title: station.name, artist: nowPlaying ?? LIVE_LABEL, artworkUrl: station.favicon ?? undefined };
     if (lockScreenActive) return player.updateLockScreenMetadata(metadata);
     // Android stops background audio after ~3 min unless the lock screen session is active.
     player.setActiveForLockScreen(true, metadata, { isLiveStream: true, showSeekForward: false, showSeekBackward: false });
@@ -58,7 +58,7 @@ export function createAudioSession({ player, store, reportClick, resolveStation 
     cancelReconnect();
     hasPlayed = false;
     attempts = 0;
-    setPlayer({ status: 'loading', station, error: null });
+    setPlayer({ status: 'loading', station, error: null, nowPlaying: null });
     start(station);
     showOnLockScreen(station);
   };
@@ -100,6 +100,14 @@ export function createAudioSession({ player, store, reportClick, resolveStation 
       cancelReconnect();
       setPlayer({ status: 'paused' }); // paused by the system or the notification
     }
+  });
+
+  player.addListener('streamMetadataUpdate', ({ title }) => {
+    const { station } = current();
+    if (!station) return;
+    const nowPlaying = title.trim() || null;
+    setPlayer({ nowPlaying });
+    showOnLockScreen(station, nowPlaying);
   });
 
   const choose = (station: StationSnapshot, from: SourceList) => {

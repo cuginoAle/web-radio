@@ -51,7 +51,8 @@ test/            fake dei confini di sistema e adattatore node:sqlite
 
 - HTTP in chiaro abilitato globalmente: necessario per circa un terzo delle stazioni ([ADR 0001](docs/adr/0001-global-cleartext-http.md)).
 - HLS senza estensione `.m3u8` e file `.pls`/`.m3u` non sono riproducibili: l'app mostra un errore.
-- Niente brano/artista (expo-audio non espone i metadati ICY) e niente precedente/successiva in notifica.
+- Il brano in onda arriva dai metadati ICY tramite una patch di expo-audio ([ADR 0003](docs/adr/0003-patch-expo-audio-icy-metadata.md)): molte stazioni non lo inviano, o vi mettono slogan e pubblicità.
+- Niente precedente/successiva in notifica.
 - Il numero di radio descrive la copia scaricata: la directory è comunitaria e non garantisce completezza.
 
 ## Dati

@@ -1,0 +1,49 @@
+diff --git a/android/src/main/java/expo/modules/audio/AudioPlayer.kt b/android/src/main/java/expo/modules/audio/AudioPlayer.kt
+index fb2d0b57fb8718df04e5c073b70837b2658f2c16..7663f310e1614487e31e669f330b0aeda1060389 100644
+--- a/android/src/main/java/expo/modules/audio/AudioPlayer.kt
++++ b/android/src/main/java/expo/modules/audio/AudioPlayer.kt
+@@ -15,6 +15,7 @@ import androidx.media3.common.util.UnstableApi
+ import androidx.media3.exoplayer.DefaultLoadControl
+ import androidx.media3.exoplayer.ExoPlayer
+ import androidx.media3.exoplayer.source.MediaSource
++import androidx.media3.extractor.metadata.icy.IcyInfo
+ import androidx.media3.session.MediaSession
+ import expo.modules.audio.service.AudioPlaybackServiceConnection
+ import expo.modules.kotlin.AppContext
+@@ -23,6 +24,7 @@ import java.lang.ref.WeakReference
+ 
+ private const val PLAYBACK_STATUS_UPDATE = "playbackStatusUpdate"
+ private const val AUDIO_SAMPLE_UPDATE = "audioSampleUpdate"
++private const val STREAM_METADATA_UPDATE = "streamMetadataUpdate"
+ private const val SEEK_JUMP_INTERVAL_MS: Long = 10_000
+ 
+ @UnstableApi
+@@ -91,6 +93,15 @@ class AudioPlayer(
+ 
+   init {
+     installPlayerListeners()
++    // Web Radio patch (docs/adr/0003): forward the ICY StreamTitle of live streams to JS.
++    ref.addListener(object : Player.Listener {
++      override fun onMetadata(metadata: androidx.media3.common.Metadata) {
++        for (i in 0 until metadata.length()) {
++          val entry = metadata.get(i)
++          if (entry is IcyInfo) emit(STREAM_METADATA_UPDATE, mapOf("title" to (entry.title ?: "")))
++        }
++      }
++    })
+     source?.let {
+       setMediaSource(source)
+     }
+diff --git a/build/AudioModule.types.d.ts b/build/AudioModule.types.d.ts
+index 0d63c9b949cfae7a101902fc3bb70fcf46094f68..c37cbe78e63cfb8f65a494e2569b16e3394289d5 100644
+--- a/build/AudioModule.types.d.ts
++++ b/build/AudioModule.types.d.ts
+@@ -222,6 +222,8 @@ export type AudioEvents = {
+     playbackStatusUpdate(status: AudioStatus): void;
+     /** Fired when audio sampling is enabled and new sample data is available. */
+     audioSampleUpdate(data: AudioSample): void;
++    /** Web Radio patch (docs/adr/0003): the ICY StreamTitle of a live stream, empty when the stream sends none. */
++    streamMetadataUpdate(data: { title: string }): void;
+ };
+ export declare class AudioRecorder extends SharedObject<RecordingEvents> {
+     /**

@@ -7,6 +7,7 @@ import { PlayerControls } from '@/components/PlayerControls';
 import { ArtworkToggle } from '@/components/PlayerPanel/ArtworkToggle';
 import { styles } from '@/components/PlayerPanel/styles';
 import { StationArtwork } from '@/components/StationArtwork';
+import { nowPlayingLine } from '@/helpers/player/nowPlayingLine';
 import { statusLabel } from '@/helpers/player/statusLabel';
 import { usePlayerControls } from '@/hooks/player/usePlayerControls';
 import { colors } from '@/theme/tokens';
@@ -23,6 +24,7 @@ export function PlayerPanel({ side = false }: Props) {
   const { player, isActive, isFavorite, toggleMain, onToggleFavorite, next, previous, retry } = usePlayerControls();
   const { width, height } = useWindowDimensions();
   const { station, status } = player;
+  const song = nowPlayingLine(player);
   const artworkSize = Math.min(MAX_ARTWORK, width * 0.28 + 120, height * 0.4);
 
   if (!station) {
@@ -42,6 +44,11 @@ export function PlayerPanel({ side = false }: Props) {
             {station.name}
           </Text>
           {station.subtitle ? <Text style={styles.subtitle}>{station.subtitle}</Text> : null}
+          {song ? (
+            <Text style={styles.nowPlaying} numberOfLines={1}>
+              {song}
+            </Text>
+          ) : null}
         </View>
         <IconButton
           icon={isFavorite ? 'heart' : 'heart-outline'}

@@ -1,7 +1,7 @@
 import { View } from 'react-native';
 
 import { EmptyState } from '@/components/EmptyState';
-import { ScreenTitle } from '@/components/ScreenTitle';
+import { Logo } from '@/components/Logo';
 import { StationList } from '@/components/StationList';
 import { listStationUuids } from '@/db/queries/stations';
 import { useStationList } from '@/hooks/stations/useStationList';
@@ -27,7 +27,7 @@ export function SearchScreen() {
   return (
     <View style={styles.root}>
       <View style={styles.header}>
-        <ScreenTitle title="Cerca" />
+        <Logo />
         <SearchField value={query} onChange={setSearchQuery} />
         <TagChips tags={tags} selected={selectedTag} onSelect={setSelectedTag} />
       </View>

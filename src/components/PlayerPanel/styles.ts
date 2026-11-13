@@ -15,6 +15,7 @@ export const styles = StyleSheet.create({
   titles: { flex: 1, gap: spacing.xs },
   name: { color: colors.text, fontFamily: fonts.title, fontSize: fontSizes.title },
   subtitle: { color: colors.textMuted, fontFamily: fonts.body, fontSize: fontSizes.body },
+  nowPlaying: { color: colors.accent, fontFamily: fonts.medium, fontSize: fontSizes.body },
   status: { flexDirection: 'row', alignItems: 'center', alignSelf: 'stretch', gap: spacing.sm, minHeight: 24 },
   statusLabel: { color: colors.textMuted, fontFamily: fonts.medium, fontSize: fontSizes.body },
   errorBox: { alignSelf: 'stretch', alignItems: 'center', gap: spacing.md },

@@ -6,10 +6,10 @@ export const styles = StyleSheet.create({
   bottom: { flexDirection: 'row', justifyContent: 'space-around', paddingVertical: spacing.xs },
   rail: {
     width: 96,
-    justifyContent: 'space-between',
     paddingVertical: spacing.lg,
     borderRightWidth: 1,
     borderRightColor: colors.border,
   },
-  railItems: { gap: spacing.sm },
+  // Takes the space between clock and back button, so the tabs sit centred in it.
+  railItems: { flex: 1, justifyContent: 'center', gap: spacing.sm },
 });

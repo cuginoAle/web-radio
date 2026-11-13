@@ -21,10 +21,8 @@ export function NavBar({ rail }: { rail: boolean }) {
   if (!rail) return <View style={styles.bottom}>{tabs}</View>;
   return (
     <View style={styles.rail}>
-      <View style={styles.railItems}>
-        <Clock />
-        {tabs}
-      </View>
+      <Clock />
+      <View style={styles.railItems}>{tabs}</View>
       <LauncherButton />
     </View>
   );

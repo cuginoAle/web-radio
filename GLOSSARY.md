@@ -63,3 +63,7 @@ _Avoid_: tempo di riproduzione, cronologia, statistiche
 **Preferito più ascoltato** (`TopFavorite`):
 Uno dei (al massimo) sei preferiti con l'ascolto cumulato più alto, purché maggiore di zero. Nell'interfaccia: "I più ascoltati".
 _Avoid_: top fav, preferito principale
+
+**Brano in onda** (`NowPlaying`):
+Il testo che lo stream stesso annuncia come in onda (di solito "artista - titolo"); può mancare, essere uno slogan o una pubblicità. Non è verificato né conservato.
+_Avoid_: traccia, canzone, metadati

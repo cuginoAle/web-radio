@@ -6,6 +6,7 @@ export const colors = {
   text: '#F5EDE1',
   textMuted: '#B8AC9C',
   accent: '#F5A623',
+  accentSoft: '#2E2416', // accent at ~12% over background
   onAccent: '#1A1408',
   warning: '#FFB199',
 } as const;

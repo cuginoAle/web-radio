@@ -184,6 +184,33 @@ it('shows the station on the lock screen and notification, without invented trac
   expect(player.lockScreen).toEqual({ title: 'Radio b', artist: 'Radio in diretta', artworkUrl: B.favicon });
 });
 
+it('shows what the stream announces as on air, in the app and on the lock screen', () => {
+  const { player, session, state } = setup();
+  session.play(A, { uuids: ['a'], index: 0 });
+  player.emitPlaying();
+
+  player.emitTitle('Miles Davis - So What');
+
+  expect(state().nowPlaying).toBe('Miles Davis - So What');
+  expect(player.lockScreen).toEqual({ title: 'Radio a', artist: 'Miles Davis - So What' });
+});
+
+it('forgets what was on air when the stream goes silent about it or the station changes', () => {
+  const { player, session, state } = setup();
+  session.play(A, { uuids: ['a', 'b'], index: 0 });
+  player.emitPlaying();
+
+  player.emitTitle('Miles Davis - So What');
+  player.emitTitle('  ');
+  expect(state().nowPlaying).toBeNull();
+  expect(player.lockScreen).toEqual({ title: 'Radio a', artist: 'Radio in diretta' });
+
+  player.emitTitle('Miles Davis - So What');
+  session.play(station('b'), { uuids: ['a', 'b'], index: 1 });
+  expect(state().nowPlaying).toBeNull();
+  expect(player.lockScreen).toEqual({ title: 'Radio b', artist: 'Radio in diretta' });
+});
+
 it('reports a click to the directory only when the user chooses a station', () => {
   jest.useFakeTimers();
   const { player, session, clicks } = setup();

@@ -4,6 +4,8 @@ import { Dimensions } from 'react-native';
 import { getStation } from '@/db/queries/stations';
 import { addFavorite } from '@/db/queries/favorites';
 import { addListeningTime } from '@/db/queries/listeningTime';
+import { MiniPlayer } from '@/components/MiniPlayer';
+import { toSnapshot } from '@/helpers/player/toSnapshot';
 import { CatalogScreen } from '@/screens/catalog';
 import { DiscoverScreen } from '@/screens/discover';
 import { FavoritesScreen } from '@/screens/favorites';
@@ -84,7 +86,7 @@ describe('Discover', () => {
     expect(screen.queryByText('Midnight Jazz')).toBeNull();
   });
 
-  it('shows the three most listened favorites before the tags, and a tap plays among them', async () => {
+  it('shows the most listened favorites before the tags, and a tap plays among them', async () => {
     const { db, state } = await startTestApp([...catalog, radio('d', 'Delta')]);
     for (const [uuid, seconds] of [['a', 10], ['b', 40], ['c', 30], ['d', 20]] as const) {
       await addFavorite(db, (await getStation(db, uuid))!);
@@ -95,7 +97,7 @@ describe('Discover', () => {
 
     await screen.findByRole('button', { name: 'Ascolta Beta' });
     const pills = screen.getAllByRole('button', { name: /^Ascolta / }).map((b) => b.props.accessibilityLabel);
-    expect(pills).toEqual(['Ascolta Beta', 'Ascolta Gamma', 'Ascolta Delta']);
+    expect(pills).toEqual(['Ascolta Beta', 'Ascolta Gamma', 'Ascolta Delta', 'Ascolta Alfa']);
     expect(screen.getAllByText(/^(I più ascoltati|Generi e tag)$/).map((t) => t.props.children)).toEqual([
       'I più ascoltati',
       'Generi e tag',
@@ -118,12 +120,17 @@ describe('Discover', () => {
     expect(await screen.findByRole('button', { name: 'Ascolta Alfa' })).toBeOnTheScreen();
   });
 
-  it('shows no brand in the three-column layout', async () => {
+  it.each([
+    ['compact', null],
+    ['three-column', { width: 1280, height: 800, scale: 2, fontScale: 1 }],
+  ])('shows the musicale logo instead of a title in the %s layout', async (_, window) => {
     await startTestApp(catalog);
-    jest.spyOn(Dimensions, 'get').mockReturnValue({ width: 1280, height: 800, scale: 2, fontScale: 1 });
+    if (window) jest.spyOn(Dimensions, 'get').mockReturnValue(window);
     await render(<DiscoverScreen />);
     expect(await screen.findByRole('button', { name: 'Rock, 1 radio' })).toBeOnTheScreen();
+    expect(screen.getByRole('image', { name: 'musicale' })).toBeOnTheScreen();
     expect(screen.queryByText('RADIO')).toBeNull();
+    expect(screen.queryByText('La tua frequenza.')).toBeNull();
     jest.restoreAllMocks();
   });
 
@@ -257,6 +264,34 @@ describe('Catalog section', () => {
   });
 });
 
+it.each([
+  ['Search', SearchScreen, 'Cerca'],
+  ['Favorites', FavoritesScreen, 'Le tue radio'],
+])('%s shows the musicale logo instead of its title', async (_, Screen, title) => {
+  await startTestApp([radio('a', 'Alfa')]);
+  await render(<Screen />);
+  expect(await screen.findByRole('image', { name: 'musicale' })).toBeOnTheScreen();
+  expect(screen.queryByText(title)).toBeNull();
+});
+
+describe('Mini-player', () => {
+  it('shows what the stream announces while playing, and the status otherwise', async () => {
+    const { db, audio, player } = await startTestApp([radio('a', 'Alfa')]);
+    const alfa = toSnapshot((await getStation(db, 'a'))!);
+    await render(<MiniPlayer />);
+    await act(async () => audio.play(alfa, { uuids: ['a'], index: 0 }));
+    await act(async () => {
+      player.emitPlaying();
+      player.emitTitle('Miles Davis - So What');
+    });
+    expect(screen.getByText('Miles Davis - So What')).toBeOnTheScreen();
+
+    await fireEvent.press(screen.getByRole('button', { name: 'Metti in pausa' }));
+    expect(screen.getByText('In pausa')).toBeOnTheScreen();
+    expect(screen.queryByText('Miles Davis - So What')).toBeNull();
+  });
+});
+
 describe('Full player route', () => {
   it('stays open in portrait: there is no room for three columns', async () => {
     await startTestApp();
@@ -264,6 +299,19 @@ describe('Full player route', () => {
     await render(<PlayerScreen />);
     await act(async () => {});
     expect(router.back).not.toHaveBeenCalled();
+    jest.restoreAllMocks();
+  });
+
+  it('shows what the stream announces under the station name', async () => {
+    const { db, audio, player } = await startTestApp([radio('a', 'Alfa')]);
+    jest.spyOn(Dimensions, 'get').mockReturnValue({ width: 411, height: 915, scale: 2.6, fontScale: 1 });
+    await render(<PlayerScreen />);
+    await act(async () => audio.play(toSnapshot((await getStation(db, 'a'))!), { uuids: ['a'], index: 0 }));
+    await act(async () => {
+      player.emitPlaying();
+      player.emitTitle('Miles Davis - So What');
+    });
+    expect(screen.getByText('Miles Davis - So What')).toBeOnTheScreen();
     jest.restoreAllMocks();
   });
 

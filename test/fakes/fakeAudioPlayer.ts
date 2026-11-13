@@ -1,4 +1,4 @@
-import type { AudioMetadata, AudioStatus } from 'expo-audio';
+import type { AudioEvents, AudioMetadata, AudioStatus } from 'expo-audio';
 
 const baseStatus: AudioStatus = {
   id: 'fake',
@@ -25,7 +25,7 @@ export class FakeAudioPlayer {
   uri: string | null = null;
   playing = false;
   lockScreen: AudioMetadata | null = null;
-  private listener: ((status: AudioStatus) => void) | null = null;
+  private listeners: Partial<AudioEvents> = {};
 
   replace(source: { uri: string }) {
     this.uri = source.uri;
@@ -40,9 +40,9 @@ export class FakeAudioPlayer {
     this.playing = false;
   }
 
-  addListener(_event: 'playbackStatusUpdate', listener: (status: AudioStatus) => void) {
-    this.listener = listener;
-    return { remove: () => (this.listener = null) };
+  addListener<E extends keyof AudioEvents>(event: E, listener: AudioEvents[E]) {
+    this.listeners[event] = listener;
+    return { remove: () => delete this.listeners[event] };
   }
 
   setActiveForLockScreen(active: boolean, metadata?: AudioMetadata) {
@@ -54,7 +54,7 @@ export class FakeAudioPlayer {
   }
 
   emit(partial: Partial<AudioStatus>) {
-    this.listener?.({ ...baseStatus, ...partial });
+    this.listeners.playbackStatusUpdate?.({ ...baseStatus, ...partial });
   }
 
   /** The stream is audibly playing (the native player reports it too). */
@@ -66,5 +66,10 @@ export class FakeAudioPlayer {
   /** The stream failed (expo-audio sends a transient `error`). */
   emitError(message = 'Source error') {
     this.emit({ error: message, playing: false, playbackState: 'idle' });
+  }
+
+  /** The stream announces what is on air (ICY `StreamTitle`, via the patched expo-audio). */
+  emitTitle(title: string) {
+    this.listeners.streamMetadataUpdate?.({ title });
   }
 }

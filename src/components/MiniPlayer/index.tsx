@@ -5,6 +5,7 @@ import { Equalizer } from '@/components/Equalizer';
 import { IconButton } from '@/components/IconButton';
 import { styles } from '@/components/MiniPlayer/styles';
 import { StationArtwork } from '@/components/StationArtwork';
+import { nowPlayingLine } from '@/helpers/player/nowPlayingLine';
 import { statusLabel } from '@/helpers/player/statusLabel';
 import { usePlayerControls } from '@/hooks/player/usePlayerControls';
 import { colors } from '@/theme/tokens';
@@ -30,7 +31,7 @@ export function MiniPlayer() {
             {station.name}
           </Text>
           <Text style={styles.status} numberOfLines={1}>
-            {statusLabel(status)}
+            {nowPlayingLine(player) ?? statusLabel(status)}
           </Text>
         </View>
       </Pressable>

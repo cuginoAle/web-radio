@@ -1,4 +1,4 @@
-import type { AudioLockScreenOptions, AudioMetadata, AudioStatus } from 'expo-audio';
+import type { AudioEvents, AudioLockScreenOptions, AudioMetadata } from 'expo-audio';
 
 /** What the audio session keeps of a station: survives catalog refreshes and cleanup. */
 export type StationSnapshot = {
@@ -21,7 +21,7 @@ export type SessionPlayer = {
   replace(source: { uri: string }): void;
   play(): void;
   pause(): void;
-  addListener(event: 'playbackStatusUpdate', listener: (status: AudioStatus) => void): { remove(): void };
+  addListener<E extends 'playbackStatusUpdate' | 'streamMetadataUpdate'>(event: E, listener: AudioEvents[E]): { remove(): void };
   setActiveForLockScreen(active: boolean, metadata?: AudioMetadata, options?: AudioLockScreenOptions): void;
   updateLockScreenMetadata(metadata: AudioMetadata): void;
 };
