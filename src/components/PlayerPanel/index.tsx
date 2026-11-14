@@ -24,7 +24,8 @@ export function PlayerPanel({ side = false }: Props) {
   const { player, isActive, isFavorite, toggleMain, onToggleFavorite, next, previous, retry } = usePlayerControls();
   const { width, height } = useWindowDimensions();
   const { station, status } = player;
-  const song = nowPlayingLine(player);
+  // In landscape the song sits on the shell's bottom line instead.
+  const song = side ? null : nowPlayingLine(player);
   const artworkSize = Math.min(MAX_ARTWORK, width * 0.28 + 120, height * 0.4);
 
   if (!station) {

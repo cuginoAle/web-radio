@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # The release APK for our own devices: `pnpm build:apk`. android/ is regenerated from app.json and
-# the plugins every time, so the APK is what the repo says. It lands in dist/Radio-<version>.apk,
+# the plugins every time, so the APK is what the repo says. It lands in dist/NoSpyFi-<version>.apk,
 # replacing the previous build of that version, and is signed with the debug keystore (README).
 set -euo pipefail
 
@@ -9,7 +9,7 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 VERSION="$(node -p "require('$ROOT/app.json').expo.version")"
-APK="dist/Radio-$VERSION.apk"
+APK="dist/NoSpyFi-$VERSION.apk"
 
 cd "$ROOT"
 # android/ is git-ignored, so prebuild's "uncommitted changes" question protects nothing here.

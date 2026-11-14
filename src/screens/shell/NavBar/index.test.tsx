@@ -28,3 +28,28 @@ describe('NavBar rail', () => {
     expect(controls.map((c) => c.props.accessibilityLabel)).toEqual(['Scopri', 'Cerca', 'Preferiti', 'Torna alle app']);
   });
 });
+
+describe.each([true, false])('NavBar tabs (rail: %s)', (rail) => {
+  function Layout() {
+    return (
+      <Tabs>
+        <TabList>
+          <TabTrigger name="discover" href="/" />
+          <TabTrigger name="search" href="/search" />
+          <TabTrigger name="favorites" href="/favorites" />
+        </TabList>
+        <NavBar rail={rail} />
+        <TabSlot />
+      </Tabs>
+    );
+  }
+
+  it('shows icons only, keeping the names for screen readers', async () => {
+    await renderRouter({ _layout: Layout, index: Empty, search: Empty, favorites: Empty });
+
+    for (const name of ['Scopri', 'Cerca', 'Preferiti']) {
+      expect(screen.getByRole('tab', { name })).toBeTruthy();
+      expect(screen.queryByText(name)).toBeNull();
+    }
+  });
+});

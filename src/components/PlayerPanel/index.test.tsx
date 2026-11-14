@@ -81,13 +81,17 @@ describe('PlayerPanel', () => {
 });
 
 describe('PlayerPanel as side panel (landscape)', () => {
-  it('shows only artwork, title and heart: no status, no previous/next', async () => {
+  it('shows only artwork, title and heart: no status, no song (it sits on the bottom line), no previous/next', async () => {
     const { player } = await listening();
     await render(<PlayerPanel side />);
-    await act(async () => player.emitPlaying());
+    await act(async () => {
+      player.emitPlaying();
+      player.emitTitle('Miles Davis - So What');
+    });
 
     expect(screen.getByText('Radio a')).toBeOnTheScreen();
     expect(screen.getByRole('button', { name: 'Aggiungi ai preferiti' })).toBeOnTheScreen();
+    expect(screen.queryByText('Miles Davis - So What')).toBeNull();
     expect(screen.queryByText('LIVE')).toBeNull();
     expect(screen.queryByText('Radio in diretta')).toBeNull();
     expect(screen.queryByRole('button', { name: 'Radio precedente' })).toBeNull();

@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Radio",
+    "name": "NoSpyFi",
     "slug": "web-radio",
     "version": "1.0.0",
     "orientation": "default",
@@ -14,7 +14,7 @@
     "android": {
       "package": "app.webradio.player",
       "adaptiveIcon": {
-        "backgroundColor": "#141210",
+        "backgroundColor": "#252527",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
@@ -32,9 +32,9 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#141210",
+          "backgroundColor": "#252527",
           "image": "./assets/images/splash-icon.png",
-          "imageWidth": 76
+          "imageWidth": 190
         }
       ],
       [

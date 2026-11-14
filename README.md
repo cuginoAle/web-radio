@@ -1,4 +1,4 @@
-# Radio
+# NoSpyFi
 
 Player di web radio per Android (smartphone e tablet landscape), in italiano. Il catalogo viene scaricato da [Radio Browser](https://www.radio-browser.info/) e salvato sul dispositivo: ricerca, generi/tag e preferiti funzionano offline, l'audio è sempre in streaming.
 
@@ -26,7 +26,7 @@ Specifica: [docs/radio-handover/web-radio-react-native-handover.md](docs/radio-h
 ### APK release installabile
 
 ```sh
-pnpm build:apk    # rigenera android/ e crea dist/Radio-<versione>.apk, poi chiede se installarlo
+pnpm build:apk    # rigenera android/ e crea dist/NoSpyFi-<versione>.apk, poi chiede se installarlo
 pnpm install:apk  # lo installa sull'unico dispositivo collegato via USB (emulatori ignorati)
 ```
 

@@ -5,6 +5,6 @@ import { TOUCH_TARGET } from '@/theme/tokens';
 export const styles = StyleSheet.create({
   // Same height as Discover's brand row (logo + info button): the logo stays put when switching tabs.
   root: { minHeight: TOUCH_TARGET, justifyContent: 'center' },
-  // 292×44 px asset: ~1:1 with the pixels of the tablet in the mock (density ~2.6).
-  logo: { height: 17, aspectRatio: 292 / 44 },
+  // 841×142 px asset: sharp at 34 dp up to density ~4.
+  logo: { height: 34, aspectRatio: 841 / 142 },
 });

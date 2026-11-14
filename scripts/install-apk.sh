@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
-# Installs dist/Radio-<version>.apk (`pnpm build:apk`) over the app on the device plugged in by USB:
+# Installs dist/NoSpyFi-<version>.apk (`pnpm build:apk`) over the app on the device plugged in by USB:
 # `pnpm install:apk`. Emulators are ignored, this is for the real phone or tablet.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 VERSION="$(node -p "require('$ROOT/app.json').expo.version")"
-APK="$ROOT/dist/Radio-$VERSION.apk"
+APK="$ROOT/dist/NoSpyFi-$VERSION.apk"
 
 if [ ! -e "$APK" ]; then
-  echo "dist/Radio-$VERSION.apk does not exist: run pnpm build:apk first." >&2
+  echo "dist/NoSpyFi-$VERSION.apk does not exist: run pnpm build:apk first." >&2
   exit 1
 fi
 
@@ -21,4 +21,4 @@ fi
 DEVICE="${DEVICES[0]}"
 
 adb -s "$DEVICE" install -r "$APK"
-echo "Installed Radio $VERSION on $DEVICE."
+echo "Installed NoSpyFi $VERSION on $DEVICE."

@@ -1,7 +1,7 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import type { TabTriggerSlotProps } from 'expo-router/ui';
 import type { ComponentProps } from 'react';
-import { Pressable, Text } from 'react-native';
+import { Pressable } from 'react-native';
 
 import { styles } from '@/screens/shell/NavBar/NavItem/styles';
 import { colors } from '@/theme/tokens';
@@ -27,9 +27,6 @@ export function NavItem({ label, icon, activeIcon, rail, isFocused, ...props }: 
       style={[styles.item, rail && styles.railItem, rail && isFocused && styles.railItemActive]}
     >
       <Ionicons name={isFocused ? activeIcon : icon} size={24} color={tint} />
-      <Text style={[styles.label, { color: tint }]} numberOfLines={1}>
-        {label}
-      </Text>
     </Pressable>
   );
 }

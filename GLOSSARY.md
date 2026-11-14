@@ -1,4 +1,4 @@
-# Radio
+# NoSpyFi
 
 Player di web radio per Android: consulta offline una copia locale della directory pubblica Radio Browser e riproduce gli stream in diretta.
 

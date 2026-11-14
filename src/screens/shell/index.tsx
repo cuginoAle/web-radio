@@ -6,6 +6,7 @@ import { MiniPlayer } from '@/components/MiniPlayer';
 import { PlayerPanel } from '@/components/PlayerPanel';
 import { useIsWideLayout } from '@/hooks/layout/useIsWideLayout';
 import { NavBar } from '@/screens/shell/NavBar';
+import { NowPlayingBar } from '@/screens/shell/NowPlayingBar';
 import { styles } from '@/screens/shell/styles';
 
 export function AppShell() {
@@ -22,14 +23,19 @@ export function AppShell() {
       </TabList>
       <View style={[isWide ? styles.row : styles.column, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
         {isWide ? <NavBar rail /> : null}
-        <View style={styles.content}>
-          <TabSlot />
-        </View>
-        {isWide ? (
-          <View style={styles.panel}>
-            <PlayerPanel side />
+        <View style={styles.main}>
+          <View style={styles.body}>
+            <View style={styles.content}>
+              <TabSlot />
+            </View>
+            {isWide ? (
+              <View style={styles.panel}>
+                <PlayerPanel side />
+              </View>
+            ) : null}
           </View>
-        ) : null}
+          {isWide ? <NowPlayingBar /> : null}
+        </View>
         {isWide ? null : <MiniPlayer />}
         {isWide ? null : <NavBar rail={false} />}
       </View>

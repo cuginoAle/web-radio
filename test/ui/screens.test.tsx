@@ -123,12 +123,12 @@ describe('Discover', () => {
   it.each([
     ['compact', null],
     ['three-column', { width: 1280, height: 800, scale: 2, fontScale: 1 }],
-  ])('shows the musicale logo instead of a title in the %s layout', async (_, window) => {
+  ])('shows the NoSpyFi logo instead of a title in the %s layout', async (_, window) => {
     await startTestApp(catalog);
     if (window) jest.spyOn(Dimensions, 'get').mockReturnValue(window);
     await render(<DiscoverScreen />);
     expect(await screen.findByRole('button', { name: 'Rock, 1 radio' })).toBeOnTheScreen();
-    expect(screen.getByRole('image', { name: 'musicale' })).toBeOnTheScreen();
+    expect(screen.getByRole('image', { name: 'NoSpyFi' })).toBeOnTheScreen();
     expect(screen.queryByText('RADIO')).toBeNull();
     expect(screen.queryByText('La tua frequenza.')).toBeNull();
     jest.restoreAllMocks();
@@ -267,10 +267,10 @@ describe('Catalog section', () => {
 it.each([
   ['Search', SearchScreen, 'Cerca'],
   ['Favorites', FavoritesScreen, 'Le tue radio'],
-])('%s shows the musicale logo instead of its title', async (_, Screen, title) => {
+])('%s shows the NoSpyFi logo instead of its title', async (_, Screen, title) => {
   await startTestApp([radio('a', 'Alfa')]);
   await render(<Screen />);
-  expect(await screen.findByRole('image', { name: 'musicale' })).toBeOnTheScreen();
+  expect(await screen.findByRole('image', { name: 'NoSpyFi' })).toBeOnTheScreen();
   expect(screen.queryByText(title)).toBeNull();
 });
 
