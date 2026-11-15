@@ -84,7 +84,7 @@ NoSpyFi never checks for updates itself, since that would mean contacting a serv
 
 ## For developers
 
-Expo / React Native app with Expo Router, SQLite and a single Zustand store. Domain language: [GLOSSARY.md](GLOSSARY.md). Decisions: [docs/adr/](docs/adr/). Native audio spike: [docs/spike-audio.md](docs/spike-audio.md).
+Expo / React Native app with Expo Router, SQLite and a single Zustand store. Build, signing and release in detail: [docs/build-and-release.md](docs/build-and-release.md). Domain language: [GLOSSARY.md](GLOSSARY.md). Decisions: [docs/adr/](docs/adr/). Native audio spike: [docs/spike-audio.md](docs/spike-audio.md).
 
 ### Requirements
 
