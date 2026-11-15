@@ -20,5 +20,14 @@ if [ "${#DEVICES[@]}" -ne 1 ]; then
 fi
 DEVICE="${DEVICES[0]}"
 
-adb -s "$DEVICE" install -r "$APK"
+if ! OUTPUT="$(adb -s "$DEVICE" install -r "$APK" 2>&1)"; then
+  echo "$OUTPUT" >&2
+  if [[ "$OUTPUT" == *INSTALL_FAILED_UPDATE_INCOMPATIBLE* ]]; then
+    echo "The NoSpyFi on $DEVICE is signed with a different key (debug vs release). Uninstall it first with" >&2
+    echo "  adb -s $DEVICE uninstall app.webradio.player" >&2
+    echo "which deletes its favourites and listening time." >&2
+  fi
+  exit 1
+fi
+echo "$OUTPUT"
 echo "Installed NoSpyFi $VERSION on $DEVICE."

@@ -13,6 +13,8 @@ VERSION="$(node -p "require('$ROOT/app.json').expo.version")"
 APK="dist/NoSpyFi-$VERSION.apk"
 
 cd "$ROOT"
+# Local settings such as NOSPYFI_KEYSTORE (git-ignored, README "Signing a release").
+if [ -f .env.local ]; then set -a; . ./.env.local; set +a; fi
 # android/ is git-ignored, so prebuild's "uncommitted changes" question protects nothing here.
 EXPO_NO_GIT_STATUS=1 pnpm expo prebuild --platform android --no-install
 (cd android && ./gradlew assembleRelease -PreactNativeArchitectures=armeabi-v7a,arm64-v8a)

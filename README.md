@@ -121,19 +121,32 @@ keytool -genkeypair -v -storetype PKCS12 -keyalg RSA -keysize 4096 -validity 100
   -alias nospyfi -keystore ~/keys/nospyfi-release.keystore
 ```
 
-Then point the build at it. It asks for the password, or reads it from `NOSPYFI_KEYSTORE_PASS`:
+Then point the build at it in `.env.local` at the repo root (git-ignored, read by the build and release scripts):
 
 ```sh
-NOSPYFI_KEYSTORE=~/keys/nospyfi-release.keystore pnpm build:apk
+NOSPYFI_KEYSTORE=/path/to/nospyfi-release.keystore
 ```
+
+`pnpm build:apk` now signs with it. It asks for the password, or reads it from `NOSPYFI_KEYSTORE_PASS`.
 
 The build prints the certificate's SHA-256 fingerprint. **Back up the keystore and its password**: every future update must be signed with the same key, and a lost key cannot be recovered. A phone with a debug-signed build has to uninstall it once before installing a release-signed one.
 
 ### Releasing an update
 
-1. In `app.json`, bump `expo.version` (what users see) and `expo.android.versionCode` (+1 every release: Android refuses an update whose code is not higher).
-2. Build with the release key, as above.
-3. Create a GitHub Release tagged `v<version>` with the APK attached and short release notes. Obtainium users get it from there.
+```sh
+pnpm release
+```
+
+It asks for the release type (patch, minor or major; Enter means patch). Pass it as an argument to skip the question, or pass an exact version (`pnpm release X.Y.Z`): that's how the very first release keeps the version already in `app.json`.
+
+The script refuses to start unless `main` is clean and level with `origin/main` and the tests, typecheck and lint pass. Then it:
+
+1. bumps the version in `app.json` and `package.json`, and raises `versionCode` by 1 (Android refuses an update whose code is not higher);
+2. builds the signed APK and offers to install it on the phone connected by USB;
+3. lists the commits since the last release as a draft for the notes, and asks whether to publish;
+4. on *yes*, commits `chore(release): vX.Y.Z`, tags it and pushes both. On *no*, a failed build or Ctrl-C, it restores the version.
+
+The last step is yours: open the link it prints, attach `dist/NoSpyFi-X.Y.Z.apk`, write the notes and publish the GitHub Release. Obtainium users get it from there.
 
 Database schema changes go in a new entry at the end of `MIGRATIONS` in [src/db/migrations.ts](src/db/migrations.ts). Never edit an existing one: updates must keep users' favourites and listening time, and there is no cloud backup to restore them from. The app never checks for updates itself ([ADR 0004](docs/adr/0004-network-limited-to-directory-and-stations.md)).
 
