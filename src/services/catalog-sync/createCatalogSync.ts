@@ -14,8 +14,8 @@ import { DirectoryError } from '@/services/radio-browser/DirectoryError';
 
 const PAGE_SIZE = 1_000;
 const MAX_MIRRORS = 3;
-const NO_PROGRESS = 'La directory continua a inviare le stesse radio. Riprova più tardi.';
-const EMPTY_CATALOG = 'La directory non ha restituito nessuna radio.';
+const NO_PROGRESS = 'The directory keeps sending the same stations. Try again later.';
+const EMPTY_CATALOG = 'The directory returned no stations.';
 
 type Progress = (imported: number) => void;
 
@@ -79,7 +79,7 @@ export function createCatalogSync({ db, client }: Deps) {
   };
 
   return {
-    /** Full download into a new generation (GLOSSARY: Riscarica). */
+    /** Full download into a new generation (GLOSSARY: Refresh). */
     refresh(onProgress: Progress = () => {}) {
       if (running) return running; // one sync at a time: repeated requests join it
       controller = new AbortController();

@@ -9,7 +9,7 @@ export type PlayerState = {
   status: PlayerStatus;
   station: StationSnapshot | null;
   error: string | null;
-  /** What the stream announces as on air (see GLOSSARY: Brano in onda); null when it says nothing. */
+  /** What the stream announces as on air (see GLOSSARY: Now playing); null when it says nothing. */
   nowPlaying: string | null;
   canPrevious: boolean;
   canNext: boolean;

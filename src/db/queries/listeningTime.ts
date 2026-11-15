@@ -3,7 +3,7 @@ import type { Db } from '@/db/types';
 
 const TOP_FAVORITES = 6;
 
-/** GLOSSARY: Ascolto cumulato. */
+/** GLOSSARY: Listening time. */
 export async function addListeningTime(db: Db, uuid: string, seconds: number) {
   await db.runAsync(
     `INSERT INTO listening_time (uuid, seconds) VALUES (?, ?)
@@ -12,7 +12,7 @@ export async function addListeningTime(db: Db, uuid: string, seconds: number) {
   );
 }
 
-/** GLOSSARY: Preferito più ascoltato. Ties keep the favorites' alphabetical order (stable sort). */
+/** GLOSSARY: Top favourite. Ties keep the favorites' alphabetical order (stable sort). */
 export async function listTopFavorites(db: Db): Promise<FavoriteItem[]> {
   const rows = await db.getAllAsync<{ uuid: string; seconds: number }>(
     'SELECT uuid, seconds FROM listening_time WHERE seconds > 0',

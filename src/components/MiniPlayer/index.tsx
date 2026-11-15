@@ -21,7 +21,7 @@ export function MiniPlayer() {
     <View style={styles.root}>
       <Pressable
         accessibilityRole="button"
-        accessibilityLabel={`Apri il player: ${station.name}`}
+        accessibilityLabel={`Open player: ${station.name}`}
         onPress={() => router.push('/player')}
         style={styles.main}
       >
@@ -38,9 +38,9 @@ export function MiniPlayer() {
       {status === 'playing' ? <Equalizer /> : null}
       {status === 'loading' || status === 'buffering' ? <ActivityIndicator color={colors.accent} /> : null}
       {status === 'error' ? (
-        <IconButton icon="refresh" label="Riprova" onPress={retry} />
+        <IconButton icon="refresh" label="Retry" onPress={retry} />
       ) : (
-        <IconButton icon={isActive ? 'pause' : 'play'} label={isActive ? 'Metti in pausa' : 'Riprendi'} onPress={toggleMain} />
+        <IconButton icon={isActive ? 'pause' : 'play'} label={isActive ? 'Pause' : 'Resume'} onPress={toggleMain} />
       )}
     </View>
   );

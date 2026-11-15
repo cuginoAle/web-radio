@@ -20,12 +20,12 @@ function RailLayout() {
 const Empty = () => null;
 
 describe('NavBar rail', () => {
-  it('shows no brand and puts "Torna alle app" last, after the tabs', async () => {
+  it('shows no brand and puts "Back to apps" last, after the tabs', async () => {
     await renderRouter({ _layout: RailLayout, index: Empty, search: Empty, favorites: Empty });
 
     expect(screen.queryByText('RADIO')).toBeNull();
     const controls = screen.getAllByRole(/^(tab|button)$/);
-    expect(controls.map((c) => c.props.accessibilityLabel)).toEqual(['Scopri', 'Cerca', 'Preferiti', 'Torna alle app']);
+    expect(controls.map((c) => c.props.accessibilityLabel)).toEqual(['Discover', 'Search', 'Favourites', 'Back to apps']);
   });
 });
 
@@ -47,7 +47,7 @@ describe.each([true, false])('NavBar tabs (rail: %s)', (rail) => {
   it('shows icons only, keeping the names for screen readers', async () => {
     await renderRouter({ _layout: Layout, index: Empty, search: Empty, favorites: Empty });
 
-    for (const name of ['Scopri', 'Cerca', 'Preferiti']) {
+    for (const name of ['Discover', 'Search', 'Favourites']) {
       expect(screen.getByRole('tab', { name })).toBeTruthy();
       expect(screen.queryByText(name)).toBeNull();
     }

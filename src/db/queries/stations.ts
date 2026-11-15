@@ -71,7 +71,7 @@ export async function listStations(
   };
 }
 
-/** All uuids of a list, frozen when listening starts (GLOSSARY: Elenco di origine). */
+/** All uuids of a list, frozen when listening starts (GLOSSARY: Source list). */
 export async function listStationUuids(db: Db, filter: StationFilter) {
   const { where, params } = filterClause(filter);
   const rows = await db.getAllAsync<{ uuid: string }>(

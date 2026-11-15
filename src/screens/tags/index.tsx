@@ -11,7 +11,7 @@ export function TagsScreen() {
   const tags = useTags();
   return (
     <SafeAreaView style={styles.root}>
-      <ModalHeader title="Generi e tag" />
+      <ModalHeader title="Genres & tags" />
       <FlatList
         data={tags}
         keyExtractor={(tag) => tag.key}

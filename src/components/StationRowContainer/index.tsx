@@ -11,7 +11,7 @@ type Props = {
   playLabel?: string;
 };
 
-const CHECK_FAILED = 'Ultimo controllo non riuscito';
+const CHECK_FAILED = 'Last check failed';
 
 export function StationRowContainer({ station, loadUuids, warning, playLabel }: Props) {
   const row = useStationRow(station, loadUuids);

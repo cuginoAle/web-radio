@@ -22,7 +22,7 @@ import { startTestApp } from '@test/ui/startTestApp';
 
 jest.mock('expo-router', () => jest.requireActual('@test/fakes/fakeRouter'));
 
-const radio = (uuid: string, name: string, tags = 'jazz') => rawStation({ stationuuid: uuid, name, tags, country: 'Italia' });
+const radio = (uuid: string, name: string, tags = 'jazz') => rawStation({ stationuuid: uuid, name, tags, country: 'Italy' });
 
 beforeEach(() => jest.clearAllMocks());
 
@@ -30,8 +30,8 @@ describe('Welcome (no local catalog)', () => {
   it('asks before downloading and explains that Internet is needed', async () => {
     const { directory } = await startTestApp();
     await render(<WelcomeScreen />);
-    expect(screen.getByRole('button', { name: 'Scarica catalogo' })).toBeOnTheScreen();
-    expect(screen.getByText(/connessione a Internet/)).toBeOnTheScreen();
+    expect(screen.getByRole('button', { name: 'Download catalogue' })).toBeOnTheScreen();
+    expect(screen.getByText(/internet connection/)).toBeOnTheScreen();
     expect(directory.pages).toEqual([]);
   });
 
@@ -40,7 +40,7 @@ describe('Welcome (no local catalog)', () => {
     directory.setMirror('mirror', rawStations(3));
     await render(<WelcomeScreen />);
 
-    await fireEvent.press(screen.getByRole('button', { name: 'Scarica catalogo' }));
+    await fireEvent.press(screen.getByRole('button', { name: 'Download catalogue' }));
 
     await waitFor(() => expect(state().catalog.stationCount).toBe(3));
   });
@@ -52,22 +52,22 @@ describe('Welcome (no local catalog)', () => {
       offset >= 1000 ? new Promise((_, reject) => signal?.addEventListener('abort', () => reject(new Error('x')))) : undefined,
     );
     await render(<WelcomeScreen />);
-    await fireEvent.press(screen.getByRole('button', { name: 'Scarica catalogo' }));
+    await fireEvent.press(screen.getByRole('button', { name: 'Download catalogue' }));
 
-    expect(await screen.findByText('1000 radio ricevute')).toBeOnTheScreen();
-    await fireEvent.press(screen.getByRole('button', { name: 'Annulla' }));
+    expect(await screen.findByText('1000 stations received')).toBeOnTheScreen();
+    await fireEvent.press(screen.getByRole('button', { name: 'Cancel' }));
 
-    expect(await screen.findByText('Catalogo non disponibile')).toBeOnTheScreen();
-    expect(screen.getByRole('button', { name: 'Riprova' })).toBeOnTheScreen();
+    expect(await screen.findByText('Catalogue unavailable')).toBeOnTheScreen();
+    expect(screen.getByRole('button', { name: 'Retry' })).toBeOnTheScreen();
   });
 
   it('offers a retry when the download fails', async () => {
     const { directory } = await startTestApp();
     directory.setMirror('mirror', new TypeError('offline'));
     await render(<WelcomeScreen />);
-    await fireEvent.press(screen.getByRole('button', { name: 'Scarica catalogo' }));
-    expect(await screen.findByText('Catalogo non disponibile')).toBeOnTheScreen();
-    expect(screen.getByRole('button', { name: 'Riprova' })).toBeOnTheScreen();
+    await fireEvent.press(screen.getByRole('button', { name: 'Download catalogue' }));
+    expect(await screen.findByText('Catalogue unavailable')).toBeOnTheScreen();
+    expect(screen.getByRole('button', { name: 'Retry' })).toBeOnTheScreen();
   });
 });
 
@@ -78,11 +78,11 @@ describe('Discover', () => {
     await startTestApp(catalog);
     await render(<DiscoverScreen />);
 
-    expect(await screen.findByRole('button', { name: /^Jazz, 2 radio|^jazz, 2 radio/i })).toBeOnTheScreen();
+    expect(await screen.findByRole('button', { name: /^Jazz, 2 stations|^jazz, 2 stations/i })).toBeOnTheScreen();
     expect(screen.queryByText('Alfa')).toBeNull();
-    expect(screen.queryByText('Tutte le radio')).toBeNull();
-    expect(screen.queryByText('I più ascoltati')).toBeNull(); // nothing listened yet
-    expect(screen.queryByText('Scelte per te')).toBeNull();
+    expect(screen.queryByText('All stations')).toBeNull();
+    expect(screen.queryByText('Most played')).toBeNull(); // nothing listened yet
+    expect(screen.queryByText('Picked for you')).toBeNull();
     expect(screen.queryByText('Midnight Jazz')).toBeNull();
   });
 
@@ -95,15 +95,15 @@ describe('Discover', () => {
     await loadCatalogState();
     await render(<DiscoverScreen />);
 
-    await screen.findByRole('button', { name: 'Ascolta Beta' });
-    const pills = screen.getAllByRole('button', { name: /^Ascolta / }).map((b) => b.props.accessibilityLabel);
-    expect(pills).toEqual(['Ascolta Beta', 'Ascolta Gamma', 'Ascolta Delta', 'Ascolta Alfa']);
-    expect(screen.getAllByText(/^(I più ascoltati|Generi e tag)$/).map((t) => t.props.children)).toEqual([
-      'I più ascoltati',
-      'Generi e tag',
+    await screen.findByRole('button', { name: 'Play Beta' });
+    const pills = screen.getAllByRole('button', { name: /^Play / }).map((b) => b.props.accessibilityLabel);
+    expect(pills).toEqual(['Play Beta', 'Play Gamma', 'Play Delta', 'Play Alfa']);
+    expect(screen.getAllByText(/^(Most played|Genres & tags)$/).map((t) => t.props.children)).toEqual([
+      'Most played',
+      'Genres & tags',
     ]);
 
-    await fireEvent.press(screen.getByRole('button', { name: 'Ascolta Gamma' }));
+    await fireEvent.press(screen.getByRole('button', { name: 'Play Gamma' }));
     await waitFor(() => expect(state().player.station?.uuid).toBe('c'));
     expect(state().player).toMatchObject({ canPrevious: true, canNext: true });
   });
@@ -112,12 +112,12 @@ describe('Discover', () => {
     const { db } = await startTestApp(catalog);
     await addListeningTime(db, 'a', 60);
     await render(<DiscoverScreen />);
-    await screen.findByRole('button', { name: 'Rock, 1 radio' });
-    expect(screen.queryByText('I più ascoltati')).toBeNull();
+    await screen.findByRole('button', { name: 'Rock, 1 station' });
+    expect(screen.queryByText('Most played')).toBeNull();
 
     const alfa = (await getStation(db, 'a'))!;
     await act(() => toggleFavorite(alfa));
-    expect(await screen.findByRole('button', { name: 'Ascolta Alfa' })).toBeOnTheScreen();
+    expect(await screen.findByRole('button', { name: 'Play Alfa' })).toBeOnTheScreen();
   });
 
   it.each([
@@ -127,17 +127,17 @@ describe('Discover', () => {
     await startTestApp(catalog);
     if (window) jest.spyOn(Dimensions, 'get').mockReturnValue(window);
     await render(<DiscoverScreen />);
-    expect(await screen.findByRole('button', { name: 'Rock, 1 radio' })).toBeOnTheScreen();
+    expect(await screen.findByRole('button', { name: 'Rock, 1 station' })).toBeOnTheScreen();
     expect(screen.getByRole('image', { name: 'NoSpyFi' })).toBeOnTheScreen();
     expect(screen.queryByText('RADIO')).toBeNull();
-    expect(screen.queryByText('La tua frequenza.')).toBeNull();
+    expect(screen.queryByText('Your frequency.')).toBeNull();
     jest.restoreAllMocks();
   });
 
   it('a tag opens Search with that tag selected', async () => {
     const { state } = await startTestApp(catalog);
     await render(<DiscoverScreen />);
-    await fireEvent.press(await screen.findByRole('button', { name: 'Rock, 1 radio' }));
+    await fireEvent.press(await screen.findByRole('button', { name: 'Rock, 1 station' }));
     expect(state().selectedTag).toEqual({ key: 'rock', label: 'Rock' });
     expect(router.navigate).toHaveBeenCalledWith('/search');
   });
@@ -145,9 +145,9 @@ describe('Discover', () => {
   it('links to the full tag list and to the catalog section', async () => {
     await startTestApp(catalog);
     await render(<DiscoverScreen />);
-    await fireEvent.press(await screen.findByRole('button', { name: 'Vedi tutti i tag' }));
+    await fireEvent.press(await screen.findByRole('button', { name: 'See all tags' }));
     expect(router.push).toHaveBeenCalledWith('/tags');
-    await fireEvent.press(screen.getByRole('button', { name: 'Catalogo radio' }));
+    await fireEvent.press(screen.getByRole('button', { name: 'Station catalogue' }));
     expect(router.push).toHaveBeenCalledWith('/catalog');
   });
 });
@@ -158,7 +158,7 @@ describe('Search', () => {
   it('filters by name, ignoring accents, and combines with the selected tag', async () => {
     const { state } = await startTestApp(catalog);
     await render(<SearchScreen />);
-    await fireEvent.changeText(screen.getByLabelText('Cerca per nome'), 'cafe');
+    await fireEvent.changeText(screen.getByLabelText('Search by name'), 'cafe');
     expect(await screen.findByText('Café Soul')).toBeOnTheScreen();
     await waitFor(() => expect(screen.queryByText('Rock FM')).toBeNull());
 
@@ -171,24 +171,24 @@ describe('Search', () => {
   it('tells "no radio found" apart from a database error', async () => {
     const { db } = await startTestApp(catalog);
     await render(<SearchScreen />);
-    await fireEvent.changeText(screen.getByLabelText('Cerca per nome'), 'zzz');
-    expect(await screen.findByText('Nessuna radio trovata')).toBeOnTheScreen();
+    await fireEvent.changeText(screen.getByLabelText('Search by name'), 'zzz');
+    expect(await screen.findByText('No stations found')).toBeOnTheScreen();
 
     const spy = jest.spyOn(db, 'getAllAsync').mockRejectedValue(new Error('disk'));
-    await fireEvent.changeText(screen.getByLabelText('Cerca per nome'), 'yyy');
-    expect(await screen.findByText('Errore del database')).toBeOnTheScreen();
-    expect(screen.queryByText('Nessuna radio trovata')).toBeNull();
+    await fireEvent.changeText(screen.getByLabelText('Search by name'), 'yyy');
+    expect(await screen.findByText('Database error')).toBeOnTheScreen();
+    expect(screen.queryByText('No stations found')).toBeNull();
 
     spy.mockRestore();
-    await fireEvent.press(screen.getByRole('button', { name: 'Riprova' }));
-    expect(await screen.findByText('Nessuna radio trovata')).toBeOnTheScreen();
+    await fireEvent.press(screen.getByRole('button', { name: 'Retry' }));
+    expect(await screen.findByText('No stations found')).toBeOnTheScreen();
   });
 
   it('clears the query', async () => {
     const { state } = await startTestApp(catalog);
     await render(<SearchScreen />);
-    await fireEvent.changeText(screen.getByLabelText('Cerca per nome'), 'cafe');
-    await fireEvent.press(await screen.findByRole('button', { name: 'Cancella ricerca' }));
+    await fireEvent.changeText(screen.getByLabelText('Search by name'), 'cafe');
+    await fireEvent.press(await screen.findByRole('button', { name: 'Clear search' }));
     expect(state().searchQuery).toBe('');
   });
 });
@@ -197,7 +197,7 @@ describe('Favorites', () => {
   it('when empty explains and links to Discover', async () => {
     await startTestApp([radio('a', 'Alfa')]);
     await render(<FavoritesScreen />);
-    await fireEvent.press(await screen.findByRole('button', { name: 'Vai a Scopri' }));
+    await fireEvent.press(await screen.findByRole('button', { name: 'Go to Discover' }));
     expect(router.navigate).toHaveBeenCalledWith('/');
   });
 
@@ -208,12 +208,12 @@ describe('Favorites', () => {
     await render(<FavoritesScreen />);
 
     expect(await screen.findByText('Alfa')).toBeOnTheScreen();
-    expect(screen.getByText('1 preferito')).toBeOnTheScreen();
-    await fireEvent.press(screen.getByRole('button', { name: 'Rimuovi dai preferiti' }));
+    expect(screen.getByText('1 favourite')).toBeOnTheScreen();
+    await fireEvent.press(screen.getByRole('button', { name: 'Remove from favourites' }));
     await waitFor(() => expect(screen.queryByText('Alfa')).toBeNull());
   });
 
-  it('keeps a favorite that left the catalog, with a notice and "Prova comunque"', async () => {
+  it('keeps a favorite that left the catalog, with a notice and "Try anyway"', async () => {
     const { db, directory, sync, state } = await startTestApp([radio('a', 'Alfa'), radio('b', 'Beta')]);
     await addFavorite(db, (await getStation(db, 'a'))!);
     directory.setMirror('mirror', [radio('b', 'Beta')]);
@@ -221,8 +221,8 @@ describe('Favorites', () => {
     await loadCatalogState();
     await render(<FavoritesScreen />);
 
-    expect(await screen.findByText(/Non presente nel catalogo aggiornato/)).toBeOnTheScreen();
-    await fireEvent.press(screen.getByRole('button', { name: 'Prova comunque' }));
+    expect(await screen.findByText(/Not in the updated catalogue/)).toBeOnTheScreen();
+    await fireEvent.press(screen.getByRole('button', { name: 'Try anyway' }));
     await waitFor(() => expect(state().player.station?.uuid).toBe('a'));
     expect(state().player).toMatchObject({ canNext: false, canPrevious: false });
   });
@@ -232,7 +232,7 @@ describe('Tags', () => {
   it('lists every group and selects one for Search', async () => {
     const { state } = await startTestApp([radio('a', 'Alfa', 'Jazz,Blues')]);
     await render(<TagsScreen />);
-    await fireEvent.press(await screen.findByRole('button', { name: 'Blues, 1 radio' }));
+    await fireEvent.press(await screen.findByRole('button', { name: 'Blues, 1 station' }));
     expect(state().selectedTag).toEqual({ key: 'blues', label: 'Blues' });
     expect(router.navigate).toHaveBeenCalledWith('/search');
   });
@@ -242,31 +242,31 @@ describe('Catalog section', () => {
   it('shows count and last success, and refreshes with a discreet confirmation', async () => {
     const { directory, state } = await startTestApp(rawStations(2));
     await render(<CatalogScreen />);
-    expect(screen.getByText('2 radio in questa copia')).toBeOnTheScreen();
-    expect(screen.getByText(/alcune decine di MB/)).toBeOnTheScreen();
+    expect(screen.getByText('2 stations stored on this device')).toBeOnTheScreen();
+    expect(screen.getByText(/a few tens of MB/)).toBeOnTheScreen();
 
     directory.setMirror('mirror', rawStations(5));
-    await fireEvent.press(screen.getByRole('button', { name: 'Riscarica catalogo' }));
+    await fireEvent.press(screen.getByRole('button', { name: 'Refresh catalogue' }));
 
-    expect(await screen.findByText('Catalogo aggiornato')).toBeOnTheScreen();
+    expect(await screen.findByText('Catalogue updated')).toBeOnTheScreen();
     expect(state().catalog.stationCount).toBe(5);
-    expect(screen.getByText('5 radio in questa copia')).toBeOnTheScreen();
+    expect(screen.getByText('5 stations stored on this device')).toBeOnTheScreen();
   });
 
   it('an error keeps the copy and offers a retry', async () => {
     const { directory } = await startTestApp(rawStations(2));
     await render(<CatalogScreen />);
     directory.setMirror('mirror', new TypeError('offline'));
-    await fireEvent.press(screen.getByRole('button', { name: 'Riscarica catalogo' }));
+    await fireEvent.press(screen.getByRole('button', { name: 'Refresh catalogue' }));
 
-    expect(await screen.findByRole('button', { name: 'Riprova' })).toBeOnTheScreen();
-    expect(screen.getByText('2 radio in questa copia')).toBeOnTheScreen();
+    expect(await screen.findByRole('button', { name: 'Retry' })).toBeOnTheScreen();
+    expect(screen.getByText('2 stations stored on this device')).toBeOnTheScreen();
   });
 });
 
 it.each([
-  ['Search', SearchScreen, 'Cerca'],
-  ['Favorites', FavoritesScreen, 'Le tue radio'],
+  ['Search', SearchScreen, 'Search'],
+  ['Favorites', FavoritesScreen, 'Your stations'],
 ])('%s shows the NoSpyFi logo instead of its title', async (_, Screen, title) => {
   await startTestApp([radio('a', 'Alfa')]);
   await render(<Screen />);
@@ -286,8 +286,8 @@ describe('Mini-player', () => {
     });
     expect(screen.getByText('Miles Davis - So What')).toBeOnTheScreen();
 
-    await fireEvent.press(screen.getByRole('button', { name: 'Metti in pausa' }));
-    expect(screen.getByText('In pausa')).toBeOnTheScreen();
+    await fireEvent.press(screen.getByRole('button', { name: 'Pause' }));
+    expect(screen.getByText('Paused')).toBeOnTheScreen();
     expect(screen.queryByText('Miles Davis - So What')).toBeNull();
   });
 });

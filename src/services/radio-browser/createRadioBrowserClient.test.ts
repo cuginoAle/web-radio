@@ -126,11 +126,3 @@ it('falls back to the built-in mirrors when no server list is reachable', async 
     'all.api.radio-browser.info',
   ]);
 });
-
-it('reports a station click once, never failing or retrying', async () => {
-  const { client, requests } = setup([new TypeError('Network request failed')]);
-
-  await expect(client.reportClick('de1.api.radio-browser.info', 'uuid-1')).resolves.toBeUndefined();
-  expect(requests.map((r) => r.url)).toEqual(['https://de1.api.radio-browser.info/json/url/uuid-1']);
-  expect(requests[0].headers['User-Agent']).toBe('WebRadio/1.0.0');
-});

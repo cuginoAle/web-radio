@@ -13,7 +13,7 @@ const ARTWORK_SIZE = 32;
 
 export function FavoritePill({ name, favicon, onPress }: Props) {
   return (
-    <Pressable accessibilityRole="button" accessibilityLabel={`Ascolta ${name}`} onPress={onPress} style={styles.pill}>
+    <Pressable accessibilityRole="button" accessibilityLabel={`Play ${name}`} onPress={onPress} style={styles.pill}>
       <StationArtwork favicon={favicon} size={ARTWORK_SIZE} />
       <Text style={styles.label} numberOfLines={1}>
         {name}

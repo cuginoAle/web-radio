@@ -13,6 +13,8 @@
     ],
     "android": {
       "package": "app.webradio.player",
+      "versionCode": 1,
+      "allowBackup": false,
       "adaptiveIcon": {
         "backgroundColor": "#252527",
         "foregroundImage": "./assets/images/android-icon-foreground.png",

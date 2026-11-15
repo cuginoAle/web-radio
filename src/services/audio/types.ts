@@ -9,7 +9,7 @@ export type StationSnapshot = {
   subtitle: string;
 };
 
-/** Frozen UUIDs that previous/next walk through (see GLOSSARY: Elenco di origine). */
+/** Frozen UUIDs that previous/next walk through (see GLOSSARY: Source list). */
 export type SourceList = {
   uuids: string[];
   index: number;

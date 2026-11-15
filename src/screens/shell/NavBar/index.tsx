@@ -7,9 +7,9 @@ import { NavItem, type IconName } from '@/screens/shell/NavBar/NavItem';
 import { styles } from '@/screens/shell/NavBar/styles';
 
 const ITEMS: { name: string; label: string; icon: IconName; activeIcon: IconName }[] = [
-  { name: 'discover', label: 'Scopri', icon: 'home-outline', activeIcon: 'home' },
-  { name: 'search', label: 'Cerca', icon: 'search-outline', activeIcon: 'search' },
-  { name: 'favorites', label: 'Preferiti', icon: 'heart-outline', activeIcon: 'heart' },
+  { name: 'discover', label: 'Discover', icon: 'home-outline', activeIcon: 'home' },
+  { name: 'search', label: 'Search', icon: 'search-outline', activeIcon: 'search' },
+  { name: 'favorites', label: 'Favourites', icon: 'heart-outline', activeIcon: 'heart' },
 ];
 
 export function NavBar({ rail }: { rail: boolean }) {

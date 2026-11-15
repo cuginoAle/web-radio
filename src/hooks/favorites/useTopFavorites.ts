@@ -6,7 +6,7 @@ import { listTopFavorites } from '@/db/queries/listeningTime';
 import { getRuntime } from '@/services/runtime';
 import { useGlobalState } from '@/state/global-state';
 
-/** GLOSSARY: Preferito più ascoltato. Re-read on focus and after favorites change, never while on screen. */
+/** GLOSSARY: Top favourite. Re-read on focus and after favorites change, never while on screen. */
 export function useTopFavorites() {
   const focused = useIsFocused();
   const uuids = useGlobalState((s) => s.favoriteUuids);

@@ -25,14 +25,14 @@ describe('PlayerPanel', () => {
   it('invites to choose a radio when nothing is selected', async () => {
     await startTestApp(catalog);
     await render(<PlayerPanel />);
-    expect(screen.getByText('Scegli una radio per iniziare l’ascolto')).toBeOnTheScreen();
+    expect(screen.getByText('Choose a station to start listening')).toBeOnTheScreen();
   });
 
   it('while loading shows the station, without claiming it is playing', async () => {
     await listening();
     await render(<PlayerPanel />);
     expect(screen.getByText('Radio a')).toBeOnTheScreen();
-    expect(screen.getByText('Caricamento…')).toBeOnTheScreen();
+    expect(screen.getByText('Loading…')).toBeOnTheScreen();
     expect(screen.queryByText('LIVE')).toBeNull();
   });
 
@@ -42,10 +42,10 @@ describe('PlayerPanel', () => {
     await act(async () => player.emitPlaying());
 
     expect(screen.getByText('LIVE')).toBeOnTheScreen();
-    expect(screen.getByText('Radio in diretta')).toBeOnTheScreen();
-    await fireEvent.press(screen.getByRole('button', { name: 'Metti in pausa' }));
+    expect(screen.getByText('Live radio')).toBeOnTheScreen();
+    await fireEvent.press(screen.getByRole('button', { name: 'Pause' }));
     expect(state().player.status).toBe('paused');
-    expect(screen.getByRole('button', { name: 'Riprendi' })).toBeOnTheScreen();
+    expect(screen.getByRole('button', { name: 'Resume' })).toBeOnTheScreen();
   });
 
   it('on error explains and offers a manual retry', async () => {
@@ -53,29 +53,29 @@ describe('PlayerPanel', () => {
     await render(<PlayerPanel />);
     await act(async () => player.emitError());
 
-    expect(screen.getByText(/Impossibile riprodurre/)).toBeOnTheScreen();
-    await fireEvent.press(screen.getByRole('button', { name: 'Riprova' }));
+    expect(screen.getByText(/Unable to play/)).toBeOnTheScreen();
+    await fireEvent.press(screen.getByRole('button', { name: 'Retry' }));
     expect(state().player.status).toBe('loading');
   });
 
   it('disables previous and next at the limits of the list', async () => {
     await listening(0);
     await render(<PlayerPanel />);
-    expect(screen.getByRole('button', { name: 'Radio precedente' })).toBeDisabled();
-    expect(screen.getByRole('button', { name: 'Radio successiva' })).toBeEnabled();
+    expect(screen.getByRole('button', { name: 'Previous station' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Next station' })).toBeEnabled();
   });
 
   it('next moves to the following station of the list', async () => {
     const { state } = await listening(0);
     await render(<PlayerPanel />);
-    await fireEvent.press(screen.getByRole('button', { name: 'Radio successiva' }));
+    await fireEvent.press(screen.getByRole('button', { name: 'Next station' }));
     await waitFor(() => expect(state().player.station?.uuid).toBe('b'));
   });
 
   it('the heart saves the station being listened to', async () => {
     const { db } = await listening();
     await render(<PlayerPanel />);
-    await fireEvent.press(screen.getByRole('button', { name: 'Aggiungi ai preferiti' }));
+    await fireEvent.press(screen.getByRole('button', { name: 'Add to favourites' }));
     await waitFor(async () => expect(await listFavoriteUuids(db)).toEqual(['a']));
   });
 });
@@ -90,12 +90,12 @@ describe('PlayerPanel as side panel (landscape)', () => {
     });
 
     expect(screen.getByText('Radio a')).toBeOnTheScreen();
-    expect(screen.getByRole('button', { name: 'Aggiungi ai preferiti' })).toBeOnTheScreen();
+    expect(screen.getByRole('button', { name: 'Add to favourites' })).toBeOnTheScreen();
     expect(screen.queryByText('Miles Davis - So What')).toBeNull();
     expect(screen.queryByText('LIVE')).toBeNull();
-    expect(screen.queryByText('Radio in diretta')).toBeNull();
-    expect(screen.queryByRole('button', { name: 'Radio precedente' })).toBeNull();
-    expect(screen.queryByRole('button', { name: 'Radio successiva' })).toBeNull();
+    expect(screen.queryByText('Live radio')).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Previous station' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Next station' })).toBeNull();
   });
 
   it('the artwork pauses and resumes, showing bars or a triangle', async () => {
@@ -104,11 +104,11 @@ describe('PlayerPanel as side panel (landscape)', () => {
     await act(async () => player.emitPlaying());
     expect(screen.getByTestId('glyph-pause')).toBeOnTheScreen();
 
-    await fireEvent.press(screen.getByRole('button', { name: 'Metti in pausa' }));
+    await fireEvent.press(screen.getByRole('button', { name: 'Pause' }));
     expect(state().player.status).toBe('paused');
     expect(screen.getByTestId('glyph-play')).toBeOnTheScreen();
 
-    await fireEvent.press(screen.getByRole('button', { name: 'Riprendi' }));
+    await fireEvent.press(screen.getByRole('button', { name: 'Resume' }));
     expect(state().player.status).toBe('loading');
     expect(screen.getByTestId('glyph-loading')).toBeOnTheScreen();
   });
@@ -118,10 +118,10 @@ describe('PlayerPanel as side panel (landscape)', () => {
     await render(<PlayerPanel side />);
     await act(async () => player.emitError());
 
-    expect(screen.getByText(/Impossibile riprodurre/)).toBeOnTheScreen();
-    expect(screen.queryByText('Riprova')).toBeNull();
+    expect(screen.getByText(/Unable to play/)).toBeOnTheScreen();
+    expect(screen.queryByText('Retry')).toBeNull();
     expect(screen.getByTestId('glyph-error')).toBeOnTheScreen();
-    await fireEvent.press(screen.getByRole('button', { name: 'Riprova' }));
+    await fireEvent.press(screen.getByRole('button', { name: 'Retry' }));
     expect(state().player.status).toBe('loading');
   });
 
@@ -137,7 +137,7 @@ describe('PlayerPanel as side panel (landscape)', () => {
       await act(async () => jest.advanceTimersByTime(5000));
       expect(screen.getByTestId('glyph-error')).toBeOnTheScreen();
 
-      await fireEvent.press(screen.getByRole('button', { name: 'Riprova' }));
+      await fireEvent.press(screen.getByRole('button', { name: 'Retry' }));
       await act(async () => player.emitPlaying());
       await act(async () => jest.advanceTimersByTime(2900));
       expect(screen.getByTestId('glyph-pause')).toBeOnTheScreen();
@@ -161,10 +161,10 @@ describe('MiniPlayer', () => {
     await render(<MiniPlayer />);
     await act(async () => player.emitPlaying());
 
-    await fireEvent.press(screen.getByRole('button', { name: 'Apri il player: Radio a' }));
+    await fireEvent.press(screen.getByRole('button', { name: 'Open player: Radio a' }));
     expect(router.push).toHaveBeenCalledWith('/player');
 
-    await fireEvent.press(screen.getByRole('button', { name: 'Metti in pausa' }));
+    await fireEvent.press(screen.getByRole('button', { name: 'Pause' }));
     expect(state().player.status).toBe('paused');
   });
 });

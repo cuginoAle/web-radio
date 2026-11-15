@@ -9,7 +9,7 @@ type Deps = {
 
 const RETRY_WAIT_MS = 2_000;
 const TIMEOUT_MS = 30_000;
-const NETWORK_ERROR = 'Impossibile raggiungere la directory delle radio. Serve una connessione a Internet.';
+const NETWORK_ERROR = 'Unable to reach the station directory. An internet connection is required.';
 
 const BOOTSTRAP_MIRRORS = ['de1.api.radio-browser.info', 'all.api.radio-browser.info'];
 const MAX_MIRRORS = 3;
@@ -17,7 +17,7 @@ const HOSTNAME = /^[a-z0-9-]+(\.[a-z0-9-]+)+$/i;
 
 const unique = (hosts: (string | null)[]) => [...new Set(hosts.filter((h): h is string => !!h))];
 
-const aborted = () => new DirectoryError('aborted', 'Operazione annullata.');
+const aborted = () => new DirectoryError('aborted', 'Operation cancelled.');
 
 const wait = (ms: number, signal?: AbortSignal) =>
   new Promise<void>((resolve, reject) => {
@@ -39,10 +39,10 @@ export function createRadioBrowserClient({ fetch, userAgent }: Deps) {
       });
       if (!response.ok) {
         const transient = response.status >= 500 || response.status === 429;
-        throw new DirectoryError('server', `La directory ha risposto con l’errore ${response.status}.`, transient);
+        throw new DirectoryError('server', `The directory responded with error ${response.status}.`, transient);
       }
       return await (response.json() as Promise<unknown>).catch(() => {
-        throw new DirectoryError('invalid', 'La directory ha inviato una risposta non leggibile.');
+        throw new DirectoryError('invalid', 'The directory sent an unreadable response.');
       });
     } finally {
       clearTimeout(timer);
@@ -78,11 +78,6 @@ export function createRadioBrowserClient({ fetch, userAgent }: Deps) {
         }
       }
       return known.slice(0, MAX_MIRRORS);
-    },
-
-    /** Directory click counter: fire-and-forget, a single attempt so one play never counts twice. */
-    async reportClick(mirror: string, uuid: string) {
-      await attempt(`https://${mirror}/json/url/${encodeURIComponent(uuid)}`).catch(() => undefined);
     },
 
     /** One page of the full directory, in a repeatable order. */

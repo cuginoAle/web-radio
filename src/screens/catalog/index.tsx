@@ -3,6 +3,7 @@ import { ActivityIndicator, Pressable, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ModalHeader } from '@/components/ModalHeader';
+import { formatStationCount } from '@/helpers/format/formatStationCount';
 import { formatDateTime } from '@/helpers/format/formatDateTime';
 import { useCatalogRefresh } from '@/hooks/catalog/useCatalogRefresh';
 import { styles } from '@/screens/catalog/styles';
@@ -22,28 +23,28 @@ export function CatalogScreen() {
 
   return (
     <SafeAreaView style={styles.root}>
-      <ModalHeader title="Catalogo radio" />
+      <ModalHeader title="Station catalogue" />
       <View style={styles.content}>
-        <Text style={styles.count}>{`${catalog.stationCount} radio in questa copia`}</Text>
+        <Text style={styles.count}>{`${formatStationCount(catalog.stationCount)} stored on this device`}</Text>
         {catalog.lastSuccessAt ? (
-          <Text style={styles.text}>{`Ultimo aggiornamento: ${formatDateTime(catalog.lastSuccessAt)}`}</Text>
+          <Text style={styles.text}>{`Last updated: ${formatDateTime(catalog.lastSuccessAt)}`}</Text>
         ) : null}
         <Text style={styles.text}>
-          Riscaricare il catalogo usa alcune decine di MB di traffico Internet. Ascolto e preferiti continuano a
-          funzionare durante il download.
+          Refreshing the catalogue uses a few tens of MB of internet data. Listening and favourites keep working
+          during the download.
         </Text>
         {running ? (
           <View style={styles.progress} accessibilityLiveRegion="polite">
             <ActivityIndicator color={colors.accent} />
-            <Text style={styles.text}>{`${sync.imported} radio ricevute`}</Text>
+            <Text style={styles.text}>{`${formatStationCount(sync.imported)} received`}</Text>
           </View>
         ) : null}
-        {sync.phase === 'done' ? <Text style={styles.confirm}>Catalogo aggiornato</Text> : null}
-        {sync.phase === 'cancelled' ? <Text style={styles.text}>Download annullato. Il catalogo non è cambiato.</Text> : null}
+        {sync.phase === 'done' ? <Text style={styles.confirm}>Catalogue updated</Text> : null}
+        {sync.phase === 'cancelled' ? <Text style={styles.text}>Download cancelled. The catalogue has not changed.</Text> : null}
         {sync.phase === 'failed' ? <Text style={styles.error}>{sync.error}</Text> : null}
         <Pressable accessibilityRole="button" onPress={running ? cancel : start} style={[styles.button, running && styles.secondary]}>
           <Text style={[styles.label, running && styles.secondaryLabel]}>
-            {running ? 'Annulla' : sync.phase === 'failed' ? 'Riprova' : 'Riscarica catalogo'}
+            {running ? 'Cancel' : sync.phase === 'failed' ? 'Retry' : 'Refresh catalogue'}
           </Text>
         </Pressable>
       </View>

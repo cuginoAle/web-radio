@@ -178,11 +178,11 @@ it('a refresh keeps favorites: updated from the new catalog, or kept with their 
   await favoriteOf(db, 'x-0');
   await favoriteOf(db, 'x-1');
 
-  directory.setMirror('m1', [rawStations(1, 'x', { name: 'Radio rinominata' })[0], rawStations(3, 'x')[2]]);
+  directory.setMirror('m1', [rawStations(1, 'x', { name: 'Radio renamed' })[0], rawStations(3, 'x')[2]]);
   await sync.refresh();
 
   expect(await listFavorites(db)).toEqual([
-    expect.objectContaining({ uuid: 'x-0', name: 'Radio rinominata', inCatalog: true }),
+    expect.objectContaining({ uuid: 'x-0', name: 'Radio renamed', inCatalog: true }),
     expect.objectContaining({ uuid: 'x-1', name: 'Radio x1', inCatalog: false }),
   ]);
 });

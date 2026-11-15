@@ -32,13 +32,13 @@ export function SearchScreen() {
         <TagChips tags={tags} selected={selectedTag} onSelect={setSelectedTag} />
       </View>
       {list.status === 'error' ? (
-        <EmptyState title="Errore del database" message="Non è stato possibile leggere il catalogo." actionLabel="Riprova" onAction={list.retry} />
+        <EmptyState title="Database error" message="The catalogue could not be read." actionLabel="Retry" onAction={list.retry} />
       ) : (
         <StationList
           items={list.items}
           rowOptions={() => ({ loadUuids })}
           onEndReached={list.loadMore}
-          empty={list.status === 'ready' ? <EmptyState title="Nessuna radio trovata" /> : null}
+          empty={list.status === 'ready' ? <EmptyState title="No stations found" /> : null}
         />
       )}
     </View>

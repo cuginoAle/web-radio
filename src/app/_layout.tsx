@@ -15,7 +15,7 @@ export default function RootLayout() {
   if (status === 'error') {
     return (
       <View style={background}>
-        <EmptyState title="Errore del database" message="Non è stato possibile aprire i dati locali dell’app." />
+        <EmptyState title="Database error" message="The app’s local data could not be opened." />
       </View>
     );
   }

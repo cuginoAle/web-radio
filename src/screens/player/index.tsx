@@ -17,7 +17,7 @@ export function PlayerScreen() {
 
   return (
     <SafeAreaView style={styles.root}>
-      <ModalHeader title="In ascolto" icon="chevron-down" />
+      <ModalHeader title="Now playing" icon="chevron-down" />
       <PlayerPanel />
     </SafeAreaView>
   );

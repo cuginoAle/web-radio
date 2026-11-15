@@ -16,7 +16,7 @@ export function TagChips({ tags, selected, onSelect }: Props) {
   const chips: SelectedTag[] = showsSelected || !selected ? tags : [selected, ...tags];
   return (
     <ScrollView horizontal showsHorizontalScrollIndicator={false} keyboardShouldPersistTaps="handled" contentContainerStyle={styles.row}>
-      <Chip label="Tutte" selected={!selected} onPress={() => onSelect(null)} />
+      <Chip label="All" selected={!selected} onPress={() => onSelect(null)} />
       {chips.map((tag) => (
         <Chip key={tag.key} label={tag.label} selected={tag.key === selected?.key} onPress={() => onSelect(tag)} />
       ))}

@@ -3,7 +3,7 @@ import { normalizeText } from '@/helpers/search/normalizeText';
 
 type Raw = Record<string, unknown>;
 
-const UNNAMED = 'Radio senza nome';
+const UNNAMED = 'Unnamed station';
 
 // Remote metadata is plain text: drop control characters and redundant whitespace.
 const text = (value: unknown) =>
@@ -48,10 +48,10 @@ const toStation = (raw: Raw): CatalogStation => {
 
 /** Validates and normalizes one /json/stations page. */
 export function normalizeStationPage(json: unknown): StationPage {
-  if (!Array.isArray(json)) return { ok: false, error: 'La risposta della directory non è un elenco di radio.' };
+  if (!Array.isArray(json)) return { ok: false, error: 'The directory response is not a list of stations.' };
   const isValid = (raw: unknown): raw is Raw =>
     typeof raw === 'object' && raw !== null && text((raw as Raw).stationuuid) !== '';
   // One bad record invalidates the page: an incomplete copy must never become the catalog.
-  if (!json.every(isValid)) return { ok: false, error: 'La directory ha inviato una radio senza identificativo.' };
+  if (!json.every(isValid)) return { ok: false, error: 'The directory sent a station without an ID.' };
   return { ok: true, stations: json.map(toStation) };
 }

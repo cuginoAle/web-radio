@@ -8,10 +8,10 @@ import { useGlyphFade } from '@/hooks/player/useGlyphFade';
 import type { PlayerStatus } from '@/state/slices/player';
 
 const LABELS: Record<GlyphKind, string> = {
-  pause: 'Metti in pausa',
-  loading: 'Metti in pausa',
-  play: 'Riprendi',
-  error: 'Riprova',
+  pause: 'Pause',
+  loading: 'Pause',
+  play: 'Resume',
+  error: 'Retry',
 };
 
 type Props = {

@@ -22,12 +22,12 @@ export function DiscoverHeader({ tags, onOpenTag, topFavorites, onPlayFavorite }
     <View style={styles.root}>
       <View style={styles.brandRow}>
         <Logo />
-        <IconButton icon="information-circle-outline" label="Catalogo radio" onPress={() => router.push('/catalog')} />
+        <IconButton icon="information-circle-outline" label="Station catalogue" onPress={() => router.push('/catalog')} />
       </View>
       {topFavorites.length > 0 ? (
         <>
           <Text style={styles.section} accessibilityRole="header">
-            I più ascoltati
+            Most played
           </Text>
           {/* Explicit rows, not wrap + % flexBasis: Yoga keeps a stale % basis after rotation. */}
           <View style={styles.pillRows}>
@@ -44,10 +44,10 @@ export function DiscoverHeader({ tags, onOpenTag, topFavorites, onPlayFavorite }
       ) : null}
       <View style={styles.sectionRow}>
         <Text style={styles.section} accessibilityRole="header">
-          Generi e tag
+          Genres & tags
         </Text>
-        <Pressable accessibilityRole="button" accessibilityLabel="Vedi tutti i tag" onPress={() => router.push('/tags')} style={styles.link}>
-          <Text style={styles.linkLabel}>Vedi tutti</Text>
+        <Pressable accessibilityRole="button" accessibilityLabel="See all tags" onPress={() => router.push('/tags')} style={styles.link}>
+          <Text style={styles.linkLabel}>See all</Text>
         </Pressable>
       </View>
       <View style={styles.grid}>

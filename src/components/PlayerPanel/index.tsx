@@ -29,7 +29,7 @@ export function PlayerPanel({ side = false }: Props) {
   const artworkSize = Math.min(MAX_ARTWORK, width * 0.28 + 120, height * 0.4);
 
   if (!station) {
-    return <Text style={styles.prompt}>Scegli una radio per iniziare l’ascolto</Text>;
+    return <Text style={styles.prompt}>Choose a station to start listening</Text>;
   }
 
   return (
@@ -54,7 +54,7 @@ export function PlayerPanel({ side = false }: Props) {
         <IconButton
           icon={isFavorite ? 'heart' : 'heart-outline'}
           color={isFavorite ? colors.accent : colors.text}
-          label={isFavorite ? 'Rimuovi dai preferiti' : 'Aggiungi ai preferiti'}
+          label={isFavorite ? 'Remove from favourites' : 'Add to favourites'}
           selected={isFavorite}
           onPress={onToggleFavorite}
         />
@@ -72,7 +72,7 @@ export function PlayerPanel({ side = false }: Props) {
           <Text style={styles.error}>{player.error}</Text>
           {side ? null : (
             <Pressable accessibilityRole="button" onPress={retry} style={styles.retry}>
-              <Text style={styles.retryLabel}>Riprova</Text>
+              <Text style={styles.retryLabel}>Retry</Text>
             </Pressable>
           )}
         </View>

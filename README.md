@@ -1,60 +1,159 @@
-# NoSpyFi
+<p align="center">
+  <img src="assets/images/icon.png" alt="NoSpyFi logo: a radio antenna, a hat and a mask" width="128">
+</p>
 
-Player di web radio per Android (smartphone e tablet landscape), in italiano. Il catalogo viene scaricato da [Radio Browser](https://www.radio-browser.info/) e salvato sul dispositivo: ricerca, generi/tag e preferiti funzionano offline, l'audio è sempre in streaming.
+<h1 align="center">NoSpyFi</h1>
 
-Pensato anche per i box auto: la barra di navigazione di Android è nascosta dall'avvio e, nel layout largo, la barra laterale ha un orologio e un tasto "Torna alle app" che manda l'app in background senza fermare l'audio.
+<p align="center">
+  <strong>Tens of thousands of internet radio stations. No account, no ads, no tracking.</strong><br>
+  A free, open-source radio player for Android phones, tablets and car head units.
+</p>
 
-Specifica: [docs/radio-handover/web-radio-react-native-handover.md](docs/radio-handover/web-radio-react-native-handover.md). Linguaggio di dominio: [GLOSSARY.md](GLOSSARY.md). Decisioni: [docs/adr/](docs/adr/). Prove native: [docs/spike-audio.md](docs/spike-audio.md).
+<p align="center">
+  <a href="https://github.com/cuginoAle/web-radio/releases">Download</a> ·
+  <a href="#privacy">Privacy</a> ·
+  <a href="#honest-limits">Limits</a> ·
+  <a href="#for-developers">Build it yourself</a>
+</p>
 
-## Requisiti
+<p align="center">
+  <img src="docs/screenshots/discover.png" alt="Discover: your most played favourites" width="24%">
+  <img src="docs/screenshots/search.png" alt="Search: stations found by name" width="24%">
+  <img src="docs/screenshots/player.png" alt="Player: a station playing, with the current song" width="24%">
+  <img src="docs/screenshots/favourites.png" alt="Favourites, with the mini-player showing the current song" width="24%">
+</p>
 
-- Node 22.13 o successivo (i test usano `node:sqlite`) e pnpm 11
-- JDK 17 e Android SDK con `ANDROID_HOME` impostato
-- Un dispositivo o emulatore Android: **Expo Go non basta**, l'audio in background richiede una build nativa
+<p align="center"><em>Find a station → listen → keep it in your favourites.</em></p>
 
-## Comandi
+## What it does
 
-| Comando | Cosa fa |
+- **The whole directory on your phone.** One download of the community-run [Radio Browser](https://www.radio-browser.info/) catalogue, then search, genres & tags and favourites work offline. Only the audio streams. You decide when to refresh the catalogue.
+- **Search by name.** Case- and accent-insensitive, instant, on the local copy.
+- **Genres & tags.** Browse stations by the tags the directory gives them. They're free-form community labels, not a curated taxonomy.
+- **Favourites.** Starts with 22 hand-picked stations (classical, jazz, blues, 70s, prog rock). A favourite keeps playing even if it disappears from a later catalogue.
+- **Most played.** Your six favourite stations by real listening time, counted on your phone only.
+- **Now playing.** The song the station announces, when it announces one. Many stations don't, or send slogans instead.
+- **Background playback.** Keeps playing with the screen off, with media controls in the notification and on the lock screen.
+- **Made for the car, too.** In landscape a side rail adds a clock and a *Back to apps* button that leaves the music playing, and the Android navigation bar stays out of the way.
+- **Free, and it stays free.** No ads, no in-app purchases, no premium tier. GPL-3.0 licensed.
+
+<p align="center">
+  <img src="docs/screenshots/landscape.png" alt="Landscape layout for tablets and car head units, with the clock and the Back to apps button" width="100%">
+</p>
+
+## Privacy
+
+No account. No sign-up. No ads. No analytics, no crash reporting, no third-party SDKs. There is no NoSpyFi server, so there's nowhere for your data to go.
+
+Your favourites, your listening time and your copy of the catalogue live in a database on your phone and never leave it. They aren't even included in Android's cloud backup.
+
+**Permissions:** internet and network status, background playback, audio settings. No location, microphone, camera, contacts or storage.
+
+### What leaves your phone
+
+| When | Who receives it | What they can see |
+|---|---|---|
+| You tap *Download* or *Refresh catalogue* | A [Radio Browser](https://www.radio-browser.info/) mirror (community-run, HTTPS) | Your IP address, and that a NoSpyFi app downloaded the directory |
+| You play a station | That station's streaming server | Your IP address and which station you're listening to, as with any radio player |
+| A station logo is shown | Whoever hosts that station's logo | Your IP address |
+| The station or logo uses plain HTTP (about a third do) | Anyone on the network path (Wi-Fi owner, ISP) | Which station you're listening to |
+
+That's all. One caveat: each stream address is exactly what the broadcaster registered with the directory, and a few include the broadcaster's own tracking parameters. NoSpyFi passes them on unchanged, because removing them can break the stream.
+
+Don't take our word for it: the code is open, and every directory request goes through [`src/services/radio-browser/`](src/services/radio-browser/).
+
+## Honest limits
+
+- **Android only** (7.0 or newer). No iOS version.
+- **English only.**
+- **Some streams won't play:** HLS streams without a `.m3u8` extension, and `.pls`/`.m3u` playlist addresses. The app shows an error.
+- **Now playing is best effort:** it comes from the stream's own metadata, which many stations leave empty or fill with slogans and ads.
+- **No previous/next in the notification**, only play/pause.
+- **The catalogue is as good as the directory:** Radio Browser is community-maintained, so stations can be missing, mislabelled or offline. The station count describes your downloaded copy.
+- **The first download takes a few tens of MB** of data. Refreshes are the same size: there is no incremental update.
+- **Plain HTTP is allowed** because about a third of stations only stream that way ([ADR 0001](docs/adr/0001-global-cleartext-http.md)).
+- **Not in the Play Store or F-Droid yet**: install the APK from [Releases](https://github.com/cuginoAle/web-radio/releases).
+
+## Install
+
+1. Download the latest `NoSpyFi-<version>.apk` from [Releases](https://github.com/cuginoAle/web-radio/releases) on your Android device.
+2. Open it and allow your browser or file manager to install apps when Android asks.
+3. Open NoSpyFi and tap *Download catalogue*.
+
+NoSpyFi never checks for updates itself, since that would mean contacting a server. To get new versions automatically, add this repository to [Obtainium](https://github.com/ImranR98/Obtainium), a free open-source app that installs updates straight from GitHub Releases. Otherwise, check [Releases](https://github.com/cuginoAle/web-radio/releases) now and then. Updates install over the old version and keep your favourites.
+
+## For developers
+
+Expo / React Native app with Expo Router, SQLite and a single Zustand store. Domain language: [GLOSSARY.md](GLOSSARY.md). Decisions: [docs/adr/](docs/adr/). Native audio spike: [docs/spike-audio.md](docs/spike-audio.md).
+
+### Requirements
+
+- Node 22.13 or newer (tests use `node:sqlite`) and pnpm 11
+- JDK 17 and the Android SDK with `ANDROID_HOME` set
+- An Android device or emulator. **Expo Go is not enough:** background audio needs a native build
+
+### Commands
+
+| Command | What it does |
 |---|---|
-| `pnpm install` | Installa le dipendenze |
-| `pnpm android` | Genera `android/`, compila una build di sviluppo e la avvia sul dispositivo |
-| `pnpm start` | Avvia Metro per una build di sviluppo già installata |
-| `pnpm test` | Test automatici (Jest; SQLite vero tramite `node:sqlite`) |
-| `pnpm typecheck` | Controllo dei tipi |
+| `pnpm install` | Install dependencies |
+| `pnpm android` | Generate `android/`, compile a development build and launch it on the device |
+| `pnpm start` | Start Metro for an already-installed development build |
+| `pnpm test` | Automated tests (Jest; real SQLite via `node:sqlite`) |
+| `pnpm typecheck` | Type check |
 | `pnpm lint` | ESLint |
 
-### APK release installabile
+### Installable release APK
 
 ```sh
-pnpm build:apk    # rigenera android/ e crea dist/NoSpyFi-<versione>.apk, poi chiede se installarlo
-pnpm install:apk  # lo installa sull'unico dispositivo collegato via USB (emulatori ignorati)
+pnpm build:apk    # regenerates android/ and builds dist/NoSpyFi-<version>.apk, then offers to install it
+pnpm install:apk  # installs it on the single USB-connected device (emulators ignored)
 ```
 
-Ogni build sostituisce l'APK della stessa versione in `dist/`. L'APK è firmato con il keystore di debug: si può installare sui propri dispositivi ma non pubblicare sul Play Store. La cartella `android/` è generata da `app.json` e non è versionata.
+Each build replaces the APK of the same version in `dist/`. `android/` is generated from `app.json` and not versioned. Without a release key the APK is signed with the debug keystore: fine for your own devices, not for distribution.
 
-## Struttura
+### Signing a release
 
-```
-src/app/         solo route (Expo Router)
-src/screens/     container delle schermate e relativi sotto-componenti
-src/components/  componenti riutilizzabili
-src/hooks/       hook raggruppati per concetto
-src/helpers/     funzioni pure (normalizzazione, ricerca, player)
-src/db/          schema SQLite, query, scritture delle generazioni
-src/services/    client Radio Browser, Riscarica, sessione audio, avvio
-src/state/       l'unico store Zustand (ADR 0002)
-src/theme/       token di colori, spaziature, tipografia
-test/            fake dei confini di sistema e adattatore node:sqlite
+Create the release key once, outside the repo:
+
+```sh
+keytool -genkeypair -v -storetype PKCS12 -keyalg RSA -keysize 4096 -validity 10000 \
+  -alias nospyfi -keystore ~/keys/nospyfi-release.keystore
 ```
 
-## Limiti noti
+Then point the build at it. It asks for the password, or reads it from `NOSPYFI_KEYSTORE_PASS`:
 
-- HTTP in chiaro abilitato globalmente: necessario per circa un terzo delle stazioni ([ADR 0001](docs/adr/0001-global-cleartext-http.md)).
-- HLS senza estensione `.m3u8` e file `.pls`/`.m3u` non sono riproducibili: l'app mostra un errore.
-- Il brano in onda arriva dai metadati ICY tramite una patch di expo-audio ([ADR 0003](docs/adr/0003-patch-expo-audio-icy-metadata.md)): molte stazioni non lo inviano, o vi mettono slogan e pubblicità.
-- Niente precedente/successiva in notifica.
-- Il numero di radio descrive la copia scaricata: la directory è comunitaria e non garantisce completezza.
+```sh
+NOSPYFI_KEYSTORE=~/keys/nospyfi-release.keystore pnpm build:apk
+```
 
-## Dati
+The build prints the certificate's SHA-256 fingerprint. **Back up the keystore and its password**: every future update must be signed with the same key, and a lost key cannot be recovered. A phone with a debug-signed build has to uninstall it once before installing a release-signed one.
 
-Catalogo: Radio Browser. Gli stream, i loghi e le registrazioni appartengono alle rispettive emittenti.
+### Releasing an update
+
+1. In `app.json`, bump `expo.version` (what users see) and `expo.android.versionCode` (+1 every release: Android refuses an update whose code is not higher).
+2. Build with the release key, as above.
+3. Create a GitHub Release tagged `v<version>` with the APK attached and short release notes. Obtainium users get it from there.
+
+Database schema changes go in a new entry at the end of `MIGRATIONS` in [src/db/migrations.ts](src/db/migrations.ts). Never edit an existing one: updates must keep users' favourites and listening time, and there is no cloud backup to restore them from. The app never checks for updates itself ([ADR 0004](docs/adr/0004-network-limited-to-directory-and-stations.md)).
+
+### Structure
+
+```
+src/app/         routes only (Expo Router)
+src/screens/     screen containers and their sub-components
+src/components/  reusable components
+src/hooks/       hooks grouped by concept
+src/helpers/     pure functions (normalisation, search, player)
+src/db/          SQLite schema, queries, generation writes
+src/services/    Radio Browser client, catalogue refresh, audio session, startup
+src/state/       the single Zustand store (ADR 0002)
+src/theme/       colour, spacing and typography tokens
+test/            fakes for system boundaries and the node:sqlite adapter
+```
+
+Now playing relies on a patch to expo-audio that reads ICY metadata ([ADR 0003](docs/adr/0003-patch-expo-audio-icy-metadata.md)).
+
+## Licence and credits
+
+NoSpyFi is free software under the [GNU General Public License v3.0 or later](LICENSE). Station data comes from [Radio Browser](https://www.radio-browser.info/). Streams, logos and broadcasts belong to their respective broadcasters.

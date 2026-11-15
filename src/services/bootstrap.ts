@@ -3,7 +3,6 @@ import Constants from 'expo-constants';
 import { openDatabaseAsync } from 'expo-sqlite';
 
 import { prepareDatabase } from '@/db/prepareDatabase';
-import { getMetadata } from '@/db/queries/catalog';
 import { addListeningTime } from '@/db/queries/listeningTime';
 import { getStation } from '@/db/queries/stations';
 import { seedDefaultFavorites } from '@/db/writes/seedDefaultFavorites';
@@ -24,16 +23,11 @@ export async function bootstrap() {
 
   const client = createRadioBrowserClient({
     fetch: (url, init) => fetch(url, init),
-    userAgent: `WebRadio/${Constants.expoConfig?.version ?? '1.0.0'}`,
+    userAgent: `NoSpyFi/${Constants.expoConfig?.version ?? '1.0.0'}`,
   });
   const audio = createAudioSession({
     player: createAudioPlayer(null),
     store: globalStore,
-    reportClick: (uuid) => {
-      void getMetadata(db, 'last_mirror')
-        .then((mirror) => (mirror ? client.reportClick(mirror, uuid) : undefined))
-        .catch(() => undefined);
-    },
     resolveStation: async (uuid) => {
       const station = await getStation(db, uuid);
       return station && toSnapshot(station);

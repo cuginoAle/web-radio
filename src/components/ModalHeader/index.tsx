@@ -14,7 +14,7 @@ type Props = {
 export function ModalHeader({ title, icon = 'arrow-back' }: Props) {
   return (
     <View style={styles.root}>
-      <IconButton icon={icon} label="Chiudi" onPress={() => router.back()} />
+      <IconButton icon={icon} label="Close" onPress={() => router.back()} />
       <Text style={styles.title} accessibilityRole="header">
         {title}
       </Text>

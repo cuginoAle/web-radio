@@ -2,7 +2,7 @@ import type { GlobalStore } from '@/state/global-state';
 
 const SAVE_EVERY_MS = 30_000;
 
-/** Adds up the seconds a station is audible (GLOSSARY: Ascolto cumulato) and hands them to `save`. */
+/** Adds up the seconds a station is audible (GLOSSARY: Listening time) and hands them to `save`. */
 export function trackListening(store: GlobalStore, save: (uuid: string, seconds: number) => void) {
   let uuid: string | null = null; // the station being counted, null when nothing is audible
   let since = 0;

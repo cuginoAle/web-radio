@@ -3,11 +3,11 @@ import { DirectoryError } from '@/services/radio-browser/DirectoryError';
 import { getRuntime } from '@/services/runtime';
 import { globalStore } from '@/state/global-state';
 
-const GENERIC_ERROR = 'Impossibile aggiornare il catalogo. Riprova.';
+const GENERIC_ERROR = 'Unable to refresh the catalogue. Try again.';
 
 let cancelRequested = false;
 
-/** Runs a Riscarica and mirrors its progress in the store; never rejects. */
+/** Runs a Refresh and mirrors its progress in the store; never rejects. */
 export async function startRefresh() {
   const { setSync } = globalStore.getState();
   cancelRequested = false;

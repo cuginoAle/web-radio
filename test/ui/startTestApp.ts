@@ -22,7 +22,6 @@ export async function startTestApp(stations: RawStation[] = []) {
   const audio: AudioSession = createAudioSession({
     player,
     store: globalStore,
-    reportClick: () => {},
     resolveStation: async (uuid) => {
       const station = await getStation(db, uuid);
       return station && toSnapshot(station);

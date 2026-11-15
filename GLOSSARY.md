@@ -1,69 +1,69 @@
 # NoSpyFi
 
-Player di web radio per Android: consulta offline una copia locale della directory pubblica Radio Browser e riproduce gli stream in diretta.
+A web radio player for Android: it browses a local copy of the public Radio Browser directory offline and plays live streams.
 
-## Catalogo
+## Catalogue
 
-**Stazione** (`Station`):
-Una voce della directory, identificata dal suo `stationuuid`. Nell'interfaccia si chiama "radio".
-_Avoid_: emittente, canale, stream
+**Station** (`Station`):
+An entry in the directory, identified by its `stationuuid`. The interface calls it a "station".
+_Avoid_: broadcaster, channel, stream
 
-**Catalogo** (`Catalog`):
-L'insieme delle stazioni consultabili dall'utente: coincide sempre con la generazione attiva.
-_Avoid_: database, cache, directory (la directory è Radio Browser)
+**Catalogue** (`Catalog`):
+The set of stations the user can browse: it always coincides with the active generation.
+_Avoid_: database, cache, directory (the directory is Radio Browser)
 
-**Generazione** (`Generation`):
-Una copia completa del catalogo prodotta da un singolo download; è *in staging* finché non viene validata, poi *pronta*.
-_Avoid_: versione, snapshot, backup
+**Generation** (`Generation`):
+A complete copy of the catalogue produced by a single download; it is *staging* until validated, then *ready*.
+_Avoid_: version, snapshot, backup
 
-**Generazione attiva** (`ActiveGeneration`):
-L'unica generazione pronta che le schermate leggono.
-_Avoid_: catalogo corrente, ultima versione
+**Active generation** (`ActiveGeneration`):
+The one ready generation that the screens read.
+_Avoid_: current catalogue, latest version
 
-**Riscarica** (`Refresh`):
-Download completo della directory in una nuova generazione, avviato dall'utente; non esiste aggiornamento incrementale.
-_Avoid_: sincronizzazione, aggiornamento, sync
+**Refresh** (`Refresh`):
+A full download of the directory into a new generation, started by the user (the "Refresh catalogue" button); there is no incremental update.
+_Avoid_: sync, update, synchronisation
 
 **Mirror** (`Mirror`):
-Un server Radio Browser da cui si scarica una generazione; una generazione proviene da un solo mirror.
+A Radio Browser server that a generation is downloaded from; a generation comes from a single mirror.
 _Avoid_: server, endpoint
 
 **Tag** (`Tag`):
-Un'etichetta libera assegnata a una stazione dalla directory, normalizzata in una chiave; non è una tassonomia musicale verificata.
-_Avoid_: genere, categoria
+A free-form label assigned to a station by the directory, normalised into a key; it is not a verified musical taxonomy.
+_Avoid_: genre, category
 
-**Gruppo di tag** (`TagGroup`):
-L'insieme delle stazioni della generazione attiva che condividono la stessa chiave di tag. L'interfaccia li presenta come "Generi e tag".
-_Avoid_: genere, playlist
+**Tag group** (`TagGroup`):
+The set of stations in the active generation that share the same tag key. The interface presents them as "Genres & tags".
+_Avoid_: genre, playlist
 
-## Utente
+## User
 
-**Preferito** (`Favorite`):
-Una stazione salvata dall'utente o preinstallata con l'app, con l'ultima istantanea utile dei suoi dati; vive indipendentemente dal catalogo.
-_Avoid_: segnalibro, salvato
+**Favourite** (`Favorite`):
+A station saved by the user or preinstalled with the app, together with the latest useful snapshot of its data; it lives independently of the catalogue.
+_Avoid_: bookmark, saved
 
-**Preferito non in catalogo** (`MissingFavorite`):
-Un preferito il cui UUID non compare nella generazione attiva; resta riproducibile con l'ultima istantanea.
-_Avoid_: preferito orfano, preferito rotto
+**Missing favourite** (`MissingFavorite`):
+A favourite whose UUID does not appear in the active generation; it remains playable using its latest snapshot.
+_Avoid_: orphaned favourite, broken favourite
 
-## Ascolto
+## Listening
 
-**Sessione audio** (`AudioSession`):
-L'unica istanza di riproduzione dell'app, condivisa da mini-player, player completo, pannello laterale e controlli di sistema.
-_Avoid_: player (per l'istanza), riproduttore
+**Audio session** (`AudioSession`):
+The app's single playback instance, shared by the mini-player, the full player, the side panel and the system controls.
+_Avoid_: player (for the instance)
 
-**Elenco di origine** (`SourceList`):
-La lista di UUID, congelata all'avvio dell'ascolto, da cui precedente e successiva scelgono la stazione adiacente.
-_Avoid_: coda, playlist, scaletta
+**Source list** (`SourceList`):
+The list of UUIDs, frozen when listening starts, from which previous and next pick the adjacent station.
+_Avoid_: queue, playlist
 
-**Ascolto cumulato** (`ListeningTime`):
-Il totale, da sempre, dei secondi in cui l'audio di una stazione è stato effettivamente udibile; vale per qualsiasi stazione, preferita o no. Caricamento, buffering e pausa non contano.
-_Avoid_: tempo di riproduzione, cronologia, statistiche
+**Listening time** (`ListeningTime`):
+The all-time total of seconds during which a station's audio was actually audible; it applies to any station, favourite or not. Loading, buffering and pausing do not count.
+_Avoid_: play time, history, statistics
 
-**Preferito più ascoltato** (`TopFavorite`):
-Uno dei (al massimo) sei preferiti con l'ascolto cumulato più alto, purché maggiore di zero. Nell'interfaccia: "I più ascoltati".
-_Avoid_: top fav, preferito principale
+**Top favourite** (`TopFavorite`):
+One of the (at most) six favourites with the highest listening time, provided it is greater than zero. In the interface: "Most played".
+_Avoid_: top fav, main favourite
 
-**Brano in onda** (`NowPlaying`):
-Il testo che lo stream stesso annuncia come in onda (di solito "artista - titolo"); può mancare, essere uno slogan o una pubblicità. Non è verificato né conservato.
-_Avoid_: traccia, canzone, metadati
+**Now playing** (`NowPlaying`):
+The text the stream itself announces as currently on air (usually "artist - title"); it may be missing, a slogan or an advert. It is neither verified nor stored.
+_Avoid_: track, song, metadata

@@ -50,8 +50,8 @@ const firstStation = (overrides: Record<string, unknown>) => {
 
 it.each([
   ['\tRadio  Café\u0007 Ñandú ', 'Radio Café Ñandú', 'radio cafe nandu'],
-  ['   ', 'Radio senza nome', 'radio senza nome'],
-  [undefined, 'Radio senza nome', 'radio senza nome'],
+  ['   ', 'Unnamed station', 'unnamed station'],
+  [undefined, 'Unnamed station', 'unnamed station'],
 ])('cleans the name %j for display and search', (name, display, searchKey) => {
   expect(firstStation({ name })).toMatchObject({ name: display, searchKey });
 });
@@ -81,8 +81,8 @@ it('falls back safely when optional fields are missing, null or malformed', () =
     stations: [
       {
         uuid: 'u-1',
-        name: 'Radio senza nome',
-        searchKey: 'radio senza nome',
+        name: 'Unnamed station',
+        searchKey: 'unnamed station',
         url: 'http://radio.example/live',
         urlResolved: '',
         favicon: null,

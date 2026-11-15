@@ -13,7 +13,7 @@ export type CatalogStatus = {
   lastSuccessAt: string | null;
 };
 
-/** What the user can browse right now (GLOSSARY: Catalogo = generazione attiva). */
+/** What the user can browse right now (GLOSSARY: Catalogue = active generation). */
 export async function getCatalogStatus(db: Db): Promise<CatalogStatus> {
   const rows = await db.getAllAsync<{ key: MetadataKey; value: string | null }>(
     "SELECT key, value FROM app_metadata WHERE key IN ('active_generation', 'active_count', 'last_success_at')",

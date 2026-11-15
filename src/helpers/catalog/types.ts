@@ -1,5 +1,5 @@
 export type StationTag = {
-  /** Normalized grouping key (GLOSSARY: Gruppo di tag). */
+  /** Normalized grouping key (GLOSSARY: Tag group). */
   key: string;
   /** Original spelling, for display. */
   label: string;

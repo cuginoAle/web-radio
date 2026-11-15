@@ -15,7 +15,6 @@ type PageHook = (mirror: string, offset: number, signal?: AbortSignal) => unknow
  */
 export function createFakeDirectory(mirrors: Record<string, RawStation[] | Error>) {
   const pages: { mirror: string; offset: number }[] = [];
-  const clicks: string[] = [];
   let beforePage: PageHook = () => undefined;
 
   const client: RadioBrowserClient = {
@@ -28,15 +27,11 @@ export function createFakeDirectory(mirrors: Record<string, RawStation[] | Error
       if (list instanceof Error) throw list;
       return list.slice(offset, offset + limit);
     },
-    reportClick: async (_mirror, uuid) => {
-      clicks.push(uuid);
-    },
   };
 
   return {
     client,
     pages,
-    clicks,
     setMirror: (mirror: string, list: RawStation[] | Error) => (mirrors[mirror] = list),
     beforePage: (hook: PageHook) => (beforePage = hook),
   };

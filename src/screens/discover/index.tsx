@@ -14,7 +14,7 @@ export function DiscoverScreen() {
   const tags = useTags(TOP_TAGS);
   const topFavorites = useTopFavorites();
 
-  // Previous / next move among the pills (GLOSSARY: Elenco di origine).
+  // Previous / next move among the pills (GLOSSARY: Source list).
   const play = (station: FavoriteItem) => void playFromList(station, async () => topFavorites.map((f) => f.uuid));
 
   return (

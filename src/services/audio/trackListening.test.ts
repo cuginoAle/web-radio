@@ -18,7 +18,7 @@ function setup() {
   jest.useFakeTimers();
   const player = new FakeAudioPlayer();
   const store = createGlobalStore();
-  const session = createAudioSession({ player, store, reportClick: () => {}, resolveStation: async () => null });
+  const session = createAudioSession({ player, store, resolveStation: async () => null });
   const saved: [string, number][] = [];
   trackListening(store, (uuid, seconds) => saved.push([uuid, seconds]));
   const wait = (seconds: number) => jest.advanceTimersByTime(seconds * 1000);

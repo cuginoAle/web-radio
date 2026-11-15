@@ -1,6 +1,7 @@
 import { Pressable, Text } from 'react-native';
 
 import { styles } from '@/components/TagTile/styles';
+import { formatStationCount } from '@/helpers/format/formatStationCount';
 
 type Props = {
   label: string;
@@ -12,7 +13,7 @@ export function TagTile({ label, count, onPress }: Props) {
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={`${label}, ${count} radio`}
+      accessibilityLabel={`${label}, ${formatStationCount(count)}`}
       onPress={onPress}
       style={styles.tile}
     >

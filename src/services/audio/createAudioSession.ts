@@ -5,20 +5,18 @@ import type { GlobalStore } from '@/state/global-state';
 import type { PlayerState } from '@/state/slices/player';
 
 const PLAYBACK_ERROR =
-  'Impossibile riprodurre questa radio. Controlla la connessione a Internet o prova un’altra stazione.';
+  'Unable to play this station. Check your internet connection or try another station.';
 const RECONNECT_DELAYS_MS = [2_000, 4_000];
-const LIVE_LABEL = 'Radio in diretta';
+const LIVE_LABEL = 'Live radio';
 
 type Deps = {
   player: SessionPlayer;
   store: GlobalStore;
-  /** Fire-and-forget directory click counter; must never block or retry. */
-  reportClick: (uuid: string) => void;
   /** Looks a station up in the active catalog; null when it is no longer there. */
   resolveStation: (uuid: string) => Promise<StationSnapshot | null>;
 };
 
-export function createAudioSession({ player, store, reportClick, resolveStation }: Deps) {
+export function createAudioSession({ player, store, resolveStation }: Deps) {
   const setPlayer = (patch: Partial<PlayerState>) => store.getState().setPlayer(patch);
   const current = () => store.getState().player;
 
@@ -115,7 +113,6 @@ export function createAudioSession({ player, store, reportClick, resolveStation 
     list = from;
     setPlayer({ canPrevious: from.index > 0, canNext: from.index < from.uuids.length - 1 });
     load(station);
-    reportClick(station.uuid);
   };
 
   const step = async (direction: 1 | -1) => {

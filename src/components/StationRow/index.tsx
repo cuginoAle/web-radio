@@ -53,14 +53,14 @@ export function StationRow({ name, subtitle, favicon, warning, playback, isFavor
       <IconButton
         icon={isFavorite ? 'heart' : 'heart-outline'}
         color={isFavorite ? colors.accent : colors.text}
-        label={isFavorite ? 'Rimuovi dai preferiti' : 'Aggiungi ai preferiti'}
+        label={isFavorite ? 'Remove from favourites' : 'Add to favourites'}
         selected={isFavorite}
         onPress={onToggleFavorite}
       />
       <IconButton
         icon={isActive ? 'pause-circle-outline' : 'play-circle-outline'}
         size={32}
-        label={isActive ? `Metti in pausa ${name}` : (playLabel ?? `Ascolta ${name}`)}
+        label={isActive ? `Pause ${name}` : (playLabel ?? `Play ${name}`)}
         onPress={onPlay}
       />
     </View>

@@ -8,22 +8,20 @@ const station = (uuid: string): StationSnapshot => ({
   name: `Radio ${uuid}`,
   streamUrl: `https://stream.example/${uuid}`,
   favicon: null,
-  subtitle: 'jazz · Italia',
+  subtitle: 'jazz · Italy',
 });
 const A = station('a');
 
 function setup(resolveStation: (uuid: string) => Promise<StationSnapshot | null> = async () => null) {
   const player = new FakeAudioPlayer();
   const store = createGlobalStore();
-  const clicks: string[] = [];
   const session = createAudioSession({
     player,
     store,
-    reportClick: (uuid) => clicks.push(uuid),
     resolveStation,
   });
   const state = () => store.getState().player;
-  return { player, session, state, clicks };
+  return { player, session, state };
 }
 
 afterEach(() => jest.useRealTimers());
@@ -65,7 +63,7 @@ it('shows an understandable error when a station never starts, and keeps it on l
   jest.advanceTimersByTime(10_000);
 
   expect(state().status).toBe('error');
-  expect(state().error).toMatch(/Impossibile riprodurre/);
+  expect(state().error).toMatch(/Unable to play/);
   expect(player.playing).toBe(false);
 });
 
@@ -178,10 +176,10 @@ it('shows the station on the lock screen and notification, without invented trac
   const { player, session } = setup();
 
   session.play(A, { uuids: ['a', 'b'], index: 0 });
-  expect(player.lockScreen).toEqual({ title: 'Radio a', artist: 'Radio in diretta' });
+  expect(player.lockScreen).toEqual({ title: 'Radio a', artist: 'Live radio' });
 
   session.play(B, { uuids: ['a', 'b'], index: 1 });
-  expect(player.lockScreen).toEqual({ title: 'Radio b', artist: 'Radio in diretta', artworkUrl: B.favicon });
+  expect(player.lockScreen).toEqual({ title: 'Radio b', artist: 'Live radio', artworkUrl: B.favicon });
 });
 
 it('shows what the stream announces as on air, in the app and on the lock screen', () => {
@@ -203,28 +201,12 @@ it('forgets what was on air when the stream goes silent about it or the station 
   player.emitTitle('Miles Davis - So What');
   player.emitTitle('  ');
   expect(state().nowPlaying).toBeNull();
-  expect(player.lockScreen).toEqual({ title: 'Radio a', artist: 'Radio in diretta' });
+  expect(player.lockScreen).toEqual({ title: 'Radio a', artist: 'Live radio' });
 
   player.emitTitle('Miles Davis - So What');
   session.play(station('b'), { uuids: ['a', 'b'], index: 1 });
   expect(state().nowPlaying).toBeNull();
-  expect(player.lockScreen).toEqual({ title: 'Radio b', artist: 'Radio in diretta' });
-});
-
-it('reports a click to the directory only when the user chooses a station', () => {
-  jest.useFakeTimers();
-  const { player, session, clicks } = setup();
-  session.play(A, { uuids: ['a', 'b'], index: 0 });
-  player.emitPlaying();
-  player.emitError();
-  jest.advanceTimersByTime(2_000); // reconnection
-  session.pause();
-  session.resume();
-  player.emitError();
-  session.retry();
-
-  session.play(station('b'), { uuids: ['a', 'b'], index: 1 });
-  expect(clicks).toEqual(['a', 'b']);
+  expect(player.lockScreen).toEqual({ title: 'Radio b', artist: 'Live radio' });
 });
 
 it('previous/next walk the frozen source list, skipping stations no longer in the catalog', async () => {
@@ -269,7 +251,7 @@ it('a station without a playable URL shows the error without touching the player
   session.play({ ...A, streamUrl: '' }, { uuids: ['a'], index: 0 });
 
   expect(state().status).toBe('error');
-  expect(state().error).toMatch(/Impossibile riprodurre/);
+  expect(state().error).toMatch(/Unable to play/);
   expect(player.uri).toBeNull();
   expect(player.playing).toBe(false);
 });

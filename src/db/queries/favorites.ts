@@ -3,7 +3,7 @@ import type { Db } from '@/db/types';
 import { pickStreamUrl } from '@/helpers/player/pickStreamUrl';
 import { normalizeText } from '@/helpers/search/normalizeText';
 
-/** A favorite joined to the active catalog; `inCatalog: false` = GLOSSARY: Preferito non in catalogo. */
+/** A favorite joined to the active catalog; `inCatalog: false` = GLOSSARY: Missing favourite. */
 export type FavoriteItem = StationItem & { inCatalog: boolean };
 
 type Row = Omit<FavoriteItem, 'lastCheckOk' | 'inCatalog'> & { lastCheckOk: number; inCatalog: number };

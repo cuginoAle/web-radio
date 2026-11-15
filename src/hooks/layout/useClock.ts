@@ -2,9 +2,9 @@ import { useEffect, useState } from 'react';
 
 const MINUTE_MS = 60_000;
 
-const currentTime = () => new Date().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
+const currentTime = () => new Date().toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
 
-/** Current local time as HH:mm, refreshed exactly at each minute boundary. */
+/** Current time in the device's locale format (hours and minutes), refreshed exactly at each minute boundary. */
 export function useClock() {
   const [time, setTime] = useState(currentTime);
 

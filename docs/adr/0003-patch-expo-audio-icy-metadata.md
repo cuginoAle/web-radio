@@ -1,14 +1,14 @@
-# Patch di expo-audio per leggere il brano in onda
+# Patching expo-audio to read the now-playing track
 
-`expo-audio` (SDK 58) non espone a JS i metadati ICY dello stream (`StreamTitle`), e Radio Browser non offre un'API "in onda". Applichiamo quindi una patch (`pnpm patch`) al codice Android di `expo-audio` che inoltra a JS, come nuovo evento, i metadati ricevuti dall'ExoPlayer interno.
+`expo-audio` (SDK 58) does not expose the stream's ICY metadata (`StreamTitle`) to JS, and Radio Browser offers no "now playing" API. We therefore apply a patch (`pnpm patch`) to the Android code of `expo-audio` that forwards to JS, as a new event, the metadata received by the internal ExoPlayer.
 
-## Opzioni scartate
+## Rejected options
 
-- **Sostituire expo-audio con react-native-track-player**: espone i metadati, ma richiede di riscrivere sessione audio e controlli di sistema.
-- **Seconda connessione HTTP da JS con `Icy-MetaData: 1`**: raddoppia il traffico e lo streaming di `fetch` in React Native è inaffidabile.
+- **Replacing expo-audio with react-native-track-player**: it exposes the metadata, but requires rewriting the audio session and the system controls.
+- **A second HTTP connection from JS with `Icy-MetaData: 1`**: doubles the traffic, and `fetch` streaming in React Native is unreliable.
 
-## Conseguenze
+## Consequences
 
-`expo-audio` arriva con un AAR precompilato (`local-maven-repo`) che ignorerebbe la patch Kotlin: in `package.json` `expo.autolinking.android.buildFromSource: ["expo-audio"]` lo forza a compilare dai sorgenti. Togliendo la patch va tolta anche quella riga.
+`expo-audio` ships with a precompiled AAR (`local-maven-repo`) that would ignore the Kotlin patch: in `package.json`, `expo.autolinking.android.buildFromSource: ["expo-audio"]` forces it to build from source. If the patch is removed, that line must be removed too.
 
-A ogni aggiornamento dell'SDK Expo la patch va riapplicata e verificata a mano sull'emulatore con una stazione che invia `StreamTitle`; se una versione futura di `expo-audio` espone i metadati, la patch va rimossa.
+On every Expo SDK update the patch must be reapplied and verified by hand on the emulator with a station that sends `StreamTitle`; if a future version of `expo-audio` exposes the metadata, the patch should be removed.

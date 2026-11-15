@@ -15,16 +15,16 @@ export function SearchField({ value, onChange }: Props) {
     <View style={styles.root}>
       <Ionicons name="search" size={20} color={colors.textMuted} />
       <TextInput
-        accessibilityLabel="Cerca per nome"
+        accessibilityLabel="Search by name"
         autoCorrect={false}
-        placeholder="Nome della radio"
+        placeholder="Station name"
         placeholderTextColor={colors.textMuted}
         returnKeyType="search"
         style={styles.input}
         value={value}
         onChangeText={onChange}
       />
-      {value ? <IconButton icon="close-circle" size={20} label="Cancella ricerca" color={colors.textMuted} onPress={() => onChange('')} /> : null}
+      {value ? <IconButton icon="close-circle" size={20} label="Clear search" color={colors.textMuted} onPress={() => onChange('')} /> : null}
     </View>
   );
 }

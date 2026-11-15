@@ -8,7 +8,7 @@ import type { FavoriteItem } from '@/db/queries/favorites';
 import { useFavoriteList } from '@/hooks/favorites/useFavoriteList';
 import { styles } from '@/screens/favorites/styles';
 
-const countLabel = (n: number) => (n === 1 ? '1 preferito' : `${n} preferiti`);
+const countLabel = (n: number) => (n === 1 ? '1 favourite' : `${n} favourites`);
 
 export function FavoritesScreen() {
   const { items, status, retry } = useFavoriteList();
@@ -19,16 +19,16 @@ export function FavoritesScreen() {
       : {
           // Absence from the directory does not prove the stream is dead: the last URL can still be tried.
           loadUuids: async () => [item.uuid],
-          warning: 'Non presente nel catalogo aggiornato · Prova comunque',
-          playLabel: 'Prova comunque',
+          warning: 'Not in the updated catalogue · Try anyway',
+          playLabel: 'Try anyway',
         };
 
   const empty =
     status === 'ready' ? (
       <EmptyState
-        title="Nessun preferito"
-        message="Tocca il cuore su una radio per ritrovarla qui."
-        actionLabel="Vai a Scopri"
+        title="No favourites yet"
+        message="Tap the heart on a station to find it here again."
+        actionLabel="Go to Discover"
         onAction={() => router.navigate('/')}
       />
     ) : null;
@@ -40,7 +40,7 @@ export function FavoritesScreen() {
         {items.length > 0 ? <Text style={styles.count}>{countLabel(items.length)}</Text> : null}
       </View>
       {status === 'error' ? (
-        <EmptyState title="Errore del database" actionLabel="Riprova" onAction={retry} />
+        <EmptyState title="Database error" actionLabel="Retry" onAction={retry} />
       ) : (
         <StationList items={items} rowOptions={rowOptions} empty={empty} />
       )}

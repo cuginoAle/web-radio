@@ -1,11 +1,11 @@
-# Traffico HTTP in chiaro abilitato globalmente
+# Cleartext HTTP traffic enabled globally
 
-Lo spike audio (`docs/spike-audio.md`) ha confermato che, su una build release, Android blocca gli stream `http://` ("CLEARTEXT communication … not permitted by network security policy"). Il 34% delle 1.400 stazioni più ascoltate del catalogo usa un URL HTTP, su host arbitrari che non si possono elencare in anticipo.
+The audio spike (`docs/spike-audio.md`) confirmed that, on a release build, Android blocks `http://` streams ("CLEARTEXT communication … not permitted by network security policy"). 34% of the catalogue's 1,400 most listened-to stations use an HTTP URL, on arbitrary hosts that cannot be listed in advance.
 
-Abbiamo quindi abilitato `android.usesCleartextTraffic` tramite `expo-build-properties`, con l'approvazione esplicita richiesta dall'handover (§7). Expo non offre un'eccezione per host arbitrari che non sia globale.
+We therefore enabled `android.usesCleartextTraffic` through `expo-build-properties`, with the explicit approval required by the handover (§7). Expo offers no exception for arbitrary hosts other than a global one.
 
 ## Consequences
 
-- Stream e favicon HTTP possono essere letti o manomessi sulla rete. L'app riproduce solo audio e immagini e non invia dati personali, quindi il rischio è limitato al contenuto ricevuto.
-- Le chiamate alla directory Radio Browser restano sempre HTTPS: il client non accetta mirror `http://`.
-- Gli URL HTTP non vengono convertiti automaticamente in HTTPS.
+- HTTP streams and favicons can be read or tampered with on the network. The app only plays audio and loads images and sends no personal data, so the risk is limited to the content received.
+- Calls to the Radio Browser directory always stay on HTTPS: the client does not accept `http://` mirrors.
+- HTTP URLs are not automatically converted to HTTPS.

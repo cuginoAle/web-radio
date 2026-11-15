@@ -7,7 +7,7 @@ describe('LauncherButton', () => {
   it('sends the app to background, as Back does on the main screen', async () => {
     const exitApp = jest.spyOn(BackHandler, 'exitApp').mockImplementation(() => {});
     await render(<LauncherButton />);
-    await fireEvent.press(screen.getByRole('button', { name: 'Torna alle app' }));
+    await fireEvent.press(screen.getByRole('button', { name: 'Back to apps' }));
     expect(exitApp).toHaveBeenCalledTimes(1);
   });
 });

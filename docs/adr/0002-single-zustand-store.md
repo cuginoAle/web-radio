@@ -1,9 +1,9 @@
-# Un solo store Zustand per lo stato volatile condiviso
+# A single Zustand store for shared volatile state
 
-L'handover (§8) sconsiglia uno store globale "per principio". Usiamo comunque un unico store Zustand (`src/state/global-state.ts`, diviso in slice), perché i bisogni sono concreti:
+The handover (§8) advises against a global store "on principle". We nevertheless use a single Zustand store (`src/state/global-state.ts`, split into slices), because the needs are concrete:
 
-- la sessione audio è letta da mini-player, player completo, pannello tablet e notifica;
-- il cuore dei preferiti deve aggiornarsi su tutte le schermate;
-- ricerca, tag selezionato e stato del download devono sopravvivere al passaggio fra layout compatto e layout a tre colonne, che rimonta l'albero dei componenti.
+- the audio session is read by the mini-player, the full player, the tablet panel and the notification;
+- the favourite heart must update on every screen;
+- search, the selected tag and the download state must survive the switch between the compact layout and the three-column layout, which remounts the component tree.
 
-SQLite resta l'unica fonte persistente. Lo store contiene solo stato in memoria e non introduce un layer repository. Non vanno creati altri store globali.
+SQLite remains the only persistent source. The store holds in-memory state only and does not introduce a repository layer. No other global stores should be created.
