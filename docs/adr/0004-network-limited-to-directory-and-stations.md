@@ -1,5 +1,7 @@
 # The app talks only to the directory and the stations
 
+> Update delivery superseded by [ADR 0006](0006-releases-through-github-obtainium-and-an-update-check.md).
+
 NoSpyFi is published as a privacy-respecting app, and the README lists everything that leaves the phone. The app therefore contacts only a Radio Browser mirror (when the user downloads or refreshes the catalogue), the stream being played and the hosts of station logos. To keep that true we removed the directory click report (`/json/url/<uuid>`, sent on every play), turned off Android Auto Backup (`android.allowBackup: false`), and deliver updates through GitHub Releases instead of an in-app update check or EAS Update.
 
 ## Considered options

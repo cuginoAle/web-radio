@@ -2,6 +2,12 @@
 
 A web radio player for Android: it browses a local copy of the public Radio Browser directory offline and plays live streams.
 
+## Product
+
+**Android app**:
+NoSpyFi installed on an Android phone, tablet or car head unit.
+_Avoid_: mobile app, native app
+
 ## Catalogue
 
 **Station** (`Station`):
@@ -75,3 +81,21 @@ _Avoid_: track, song, metadata
 **Spectrum** (`Spectrum`):
 The band levels of the audio the audio session is playing right now, measured from the decoded stream and never from the microphone; it is neither stored nor sent anywhere.
 _Avoid_: equalizer, visualiser, waveform
+
+## Distribution
+
+**Release**:
+A published, signed version of the Android app, identified by its version number.
+_Avoid_: build, APK
+
+**App update**:
+Installing a newer release over the installed one, keeping favourites and listening time. Not to be confused with a catalogue refresh.
+_Avoid_: upgrade, refresh
+
+**Channel**:
+Where a user installs releases from and receives app updates through.
+_Avoid_: store, source, repo, market
+
+**Update notice**:
+How a user learns that a newer release exists without going to look for it: a system notification from their channel's client, or a notice when they next open the app.
+_Avoid_: update alert, update prompt
