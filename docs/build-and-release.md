@@ -9,8 +9,8 @@ Each stage, from the command you run to what reaches users:
 | Development build | `pnpm android` | Debug app with live reload, on a device or emulator |
 | Release APK | `pnpm build:apk` | `dist/NoSpyFi-<version>.apk`, signed with the release key if configured |
 | Install on a phone | `pnpm install:apk` | That APK installed over USB |
-| Release | `pnpm release` | Version bumped, APK built and tested, commit and tag pushed |
-| Publish | GitHub web UI | GitHub Release with the APK, which users and Obtainium see |
+| Release | `pnpm release` | Version bumped, APK built and tested, commit and tag pushed, GitHub Release published with the APK, which users and Obtainium see |
+| Publish again | `pnpm release:publish vX.Y.Z` | Only the GitHub Release step, if it failed during `pnpm release` |
 
 ## 1. Prerequisites
 
@@ -19,6 +19,7 @@ Each stage, from the command you run to what reaches users:
 - **Android SDK**, with `ANDROID_HOME` set. It needs at least one `build-tools` version, which provides `apksigner` and `zipalign`; the scripts pick the newest one installed.
 - **`adb`** on the `PATH`, for installing on a device.
 - **Git with push access** to `origin`, for releases. If your git config signs commits or tags with GPG, run releases in a real terminal so the passphrase prompt can appear.
+- **`gh`** (`brew install gh`), logged in with the release token, for releases (see [section 7](#the-github-token)).
 
 **Expo Go is not enough.** Background audio and the patched expo-audio module need a native build.
 
@@ -100,6 +101,8 @@ How these values are handled:
 - **The keystore path never ends up in the app.** Expo also reads `.env.local`, but only `EXPO_PUBLIC_*` variables are bundled into the app.
 - **The password is passed as an environment reference** (`env:`), so it never appears in the process list.
 
+The certificate's SHA-256 fingerprint (`20ca537f…2081`) is written in [`scripts/release-publish.sh`](../scripts/release-publish.sh), which refuses to publish an APK signed with anything else.
+
 **Back up the keystore and its password** (a password manager plus an offline copy). Every update must be signed with the same key. NoSpyFi isn't on Google Play, so there's no key reset: a lost key means nobody can update any more, and every user would have to uninstall, losing their favourites.
 
 ### Installing on a phone
@@ -140,6 +143,7 @@ pnpm release 1.0.0        # exact version, e.g. to keep the current number for a
 1. **Checks that run before anything changes.** Any failure stops the script with a message:
    - the argument is valid;
    - `NOSPYFI_KEYSTORE` is set: releases are never debug-signed;
+   - `gh` is installed and logged in (`gh auth status`);
    - the working tree is clean;
    - you're on `main`, level with `origin/main` (it fetches first);
    - the tag `vX.Y.Z` doesn't exist locally or on `origin`.
@@ -147,26 +151,45 @@ pnpm release 1.0.0        # exact version, e.g. to keep the current number for a
 3. **`pnpm test`, `pnpm typecheck` and `pnpm lint`.** This is the slow part, so it runs after the question.
 4. **Version bump.** It edits only the version fields in `app.json` and `package.json`, leaving the rest of the formatting alone.
 5. **Build.** It runs `build-apk.sh` and **offers to install the APK on the USB phone**. Test the app on the phone now: this exact file is what you'll publish.
-6. **Draft release notes.** It prints the commits since the previous tag, to help you write the notes.
-7. **"Publish vX.Y.Z (commit, tag and push)? [y/N]"**
-   - **y:** commits `chore(release): vX.Y.Z` (only `app.json` and `package.json`), creates the annotated tag `vX.Y.Z`, and pushes the commit and tag in one atomic push.
-   - **n, Enter, Ctrl-C or a failed build:** restores `app.json` and `package.json`. Nothing is committed or pushed.
-8. **Hand-over.** It prints the APK path and the link for creating the GitHub Release.
+6. **Release notes.** Your git editor opens (`core.editor`, else `$VISUAL` or `$EDITOR`), like for a commit message, with the commits since the previous tag listed as `#` lines. Write a few lines for users in Markdown; Obtainium shows them as the changelog. Lines starting with `#` are dropped (so no Markdown headings), and **empty notes cancel** the release.
+7. **"Publish vX.Y.Z (commit, tag, push and GitHub Release)? [y/N]"**
+   - **y:** commits `chore(release): vX.Y.Z` (only `app.json` and `package.json`), creates the annotated tag `vX.Y.Z` (subject `NoSpyFi X.Y.Z`, the notes as its body), pushes the commit and tag in one atomic push, then publishes the GitHub Release ([section 7](#7-publishing-the-github-release)).
+   - **n, Enter, Ctrl-C, empty notes or a failed build:** restores `app.json` and `package.json`. Nothing is committed or pushed.
 
-If the push fails (no network, rejected), the commit and tag stay local and the script prints the retry command: `git push --atomic origin main vX.Y.Z`.
+If the push fails (no network, rejected), the commit and tag stay local and the script prints the retry command: `git push --atomic origin main vX.Y.Z && pnpm release:publish vX.Y.Z`. If publishing fails, the tag is already on GitHub but no release is visible, so neither Obtainium nor the app's update check sees anything; the script prints `pnpm release:publish vX.Y.Z` to retry.
 
 ## 7. Publishing the GitHub Release
 
-This step is manual, in the browser:
+```sh
+pnpm release:publish vX.Y.Z   # run by pnpm release; rerun it on its own if that step failed
+```
 
-1. Open the link printed by the script: `https://github.com/cuginoAle/web-radio/releases/new?tag=vX.Y.Z`. The tag is already selected.
-2. **Title:** `NoSpyFi X.Y.Z`.
-3. **Notes:** a few lines written for users. Start from the commit list the script printed and drop internal commits such as "wip".
-4. **Attach `dist/NoSpyFi-X.Y.Z.apk`**, and not the `.idsig`.
-5. Leave **"Set as a pre-release" unticked**. Obtainium ignores pre-releases by default, so its users wouldn't get the update.
-6. **Publish release.**
+[`scripts/release-publish.sh`](../scripts/release-publish.sh) publishes the release for a tag that is already pushed:
 
-The repository must be **public**, or the README's Download link and Obtainium can't reach the APK.
+1. **Checks `dist/NoSpyFi-X.Y.Z.apk`** with `apksigner` and `aapt2`: it must be signed with the release key and its versionName must be `X.Y.Z`. This catches a debug-signed `pnpm build:apk`, or another version's build, having replaced the file. On a mismatch it stops and prints the rebuild command.
+2. **Already published?** It prints the release's URL and exits successfully, changing nothing.
+3. **Creates a draft** from the tag (`--verify-tag`), with the tag's subject as the title and its body as the notes. An existing draft is reused.
+4. **Uploads the APK**, replacing a partial upload (`--clobber`). It is the release's only asset: never the `.idsig`. The app's update check looks for exactly one file named `NoSpyFi-X.Y.Z.apk`.
+5. **Publishes** the draft as the latest release, never a pre-release (Obtainium ignores pre-releases by default).
+
+The repository must stay **public**, or the README's Download link, Obtainium and the update check can't reach the APK.
+
+### The GitHub token
+
+`gh` uses a fine-grained personal access token that can only touch this repository. Create it once a year:
+
+1. GitHub → **Settings → Developer settings → Fine-grained tokens → Generate new token**.
+2. **Expiration:** 1 year. **Repository access:** only `cuginoAle/web-radio`. **Permissions:** Contents → *Read and write* (Metadata → *Read* is added automatically).
+3. Log `gh` in with it; the token is kept in the macOS Keychain, not in `.env.local`:
+   ```sh
+   gh auth login --with-token   # paste the token, then Ctrl-D
+   gh auth status               # check
+   ```
+4. Write the new expiry date below.
+
+**Expires:** YYYY-MM-DD. Renew it a month before.
+
+While `gh` is logged in with this token, it can't touch your other repositories.
 
 ## 8. How updates reach users
 
@@ -183,6 +206,8 @@ The repository must be **public**, or the README's Download link and Obtainium c
 | `The working tree is not clean` | Commit or stash first. Untracked files count too. |
 | `main is not level with origin/main` | Pull, or push your commits, then retry. |
 | `Tag vX.Y.Z already exists` | That version was already released: pick another bump or version. |
+| `gh is missing or not logged in` | Install `gh`, or the token expired: create a new one ([section 7](#the-github-token)). A `401` or `403` from `gh` during publishing has the same cause; rerun `pnpm release:publish vX.Y.Z` after logging in again. |
+| `… is not signed with the release key` or `… has versionName …, not …` | `dist/` holds a different build of that version. Rebuild it from the tag as the message says, then rerun `pnpm release:publish vX.Y.Z`. |
 | `INSTALL_FAILED_UPDATE_INCOMPATIBLE` | The installed app has a different signature: uninstall once (this deletes its data). |
 | `INSTALL_FAILED_INSUFFICIENT_STORAGE` | The device is full. On a phone, free space. On the emulator, uninstalling the app frees little if the old build was small; Android also keeps a low-storage reserve free (500 MB by default), so a nearly full `/data` rejects the 84 MB debug APK. What fixed it here: wipe the AVD (`emulator -avd <name> -wipe-data`), which deletes every app on it. |
 | Install rejected as "not newer" | `versionCode` didn't increase: always release through `pnpm release`. |

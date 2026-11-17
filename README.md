@@ -144,12 +144,12 @@ The script refuses to start unless `main` is clean and level with `origin/main` 
 
 1. bumps the version in `app.json` and `package.json`, and raises `versionCode` by 1 (Android refuses an update whose code is not higher);
 2. builds the signed APK and offers to install it on the phone connected by USB;
-3. lists the commits since the last release as a draft for the notes, and asks whether to publish;
-4. on *yes*, commits `chore(release): vX.Y.Z`, tags it and pushes both. On *no*, a failed build or Ctrl-C, it restores the version.
+3. opens `$EDITOR` for the release notes, with the commits since the last release as a draft, and asks whether to publish;
+4. on *yes*, commits `chore(release): vX.Y.Z`, tags it with the notes, pushes both and publishes the GitHub Release with the APK (`pnpm release:publish`). On *no*, empty notes, a failed build or Ctrl-C, it restores the version.
 
-The last step is yours: open the link it prints, attach `dist/NoSpyFi-X.Y.Z.apk`, write the notes and publish the GitHub Release. Obtainium users get it from there.
+It needs `gh` logged in with the release token. Details, retries and troubleshooting: [docs/build-and-release.md](docs/build-and-release.md).
 
-Database schema changes go in a new entry at the end of `MIGRATIONS` in [src/db/migrations.ts](src/db/migrations.ts). Never edit an existing one: updates must keep users' favourites and listening time, and there is no cloud backup to restore them from. The app never checks for updates itself ([ADR 0004](docs/adr/0004-network-limited-to-directory-and-stations.md)).
+Database schema changes go in a new entry at the end of `MIGRATIONS` in [src/db/migrations.ts](src/db/migrations.ts). Never edit an existing one: updates must keep users' favourites and listening time, and there is no cloud backup to restore them from.
 
 ### Structure
 

@@ -49,6 +49,7 @@
     "build:apk": "scripts/build-apk.sh",
     "install:apk": "scripts/install-apk.sh",
     "release": "scripts/release.sh",
+    "release:publish": "scripts/release-publish.sh",
     "lint": "expo lint",
     "typecheck": "tsc --noEmit",
     "test": "jest"

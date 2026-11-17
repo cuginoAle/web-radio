@@ -2,8 +2,8 @@
 # Cuts a release: `pnpm release [patch|minor|major|X.Y.Z]`, asking for the type when omitted
 # (README, "Releasing an update").
 # Bumps the version in app.json and package.json (versionCode +1), builds the signed APK (offering
-# a USB install), then asks before committing, tagging and pushing. Creating the GitHub Release
-# with the APK attached is left to you: the script prints the link.
+# a USB install), opens your editor for the release notes, then asks before committing, tagging
+# (notes as the tag message), pushing and publishing the GitHub Release (scripts/release-publish.sh).
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -19,6 +19,7 @@ fail() {
 BUMP="${1:-}"
 [[ -z "$BUMP" || "$BUMP" =~ ^(patch|minor|major|[0-9]+\.[0-9]+\.[0-9]+)$ ]] || fail "Usage: pnpm release [patch|minor|major|X.Y.Z]"
 [ -n "${NOSPYFI_KEYSTORE:-}" ] || fail "Set NOSPYFI_KEYSTORE (in .env.local) to the release keystore: releases are never debug-signed."
+gh auth status >/dev/null 2>&1 || fail "gh is missing or not logged in: see docs/build-and-release.md, section 7 (The GitHub token)."
 [ -z "$(git status --porcelain)" ] || fail "The working tree is not clean: commit or stash first."
 [ "$(git branch --show-current)" = main ] || fail "Releases are cut from main."
 git fetch --quiet origin main
@@ -58,7 +59,9 @@ pnpm typecheck
 pnpm lint
 
 # From here until the commit, any exit (failed build, "no", Ctrl-C) puts the version back.
+NOTES="$(mktemp)"
 restore() {
+  rm -f "$NOTES"
   git checkout -- app.json package.json
   echo "Release cancelled: app.json and package.json restored."
 }
@@ -78,23 +81,31 @@ echo "Version $CURRENT -> $VERSION (versionCode $(node -p "require('./app.json')
 
 scripts/build-apk.sh
 
+# Release notes, written like a commit message: the commits are a draft, '#' lines are dropped.
 PREVIOUS="$(git describe --tags --abbrev=0 2>/dev/null || true)"
-echo
-echo "Commits since ${PREVIOUS:-the beginning} (draft for the release notes):"
-git --no-pager log --oneline ${PREVIOUS:+"$PREVIOUS..HEAD"}
-echo
-read -r -p "Publish $TAG (commit, tag and push)? [y/N] " answer
+{
+  echo
+  echo "# Release notes for NoSpyFi $VERSION: a few lines for users, in Markdown (Obtainium shows them)."
+  echo "# Lines starting with '#' are dropped, so no Markdown headings. Empty notes cancel the release."
+  echo "#"
+  echo "# Commits since ${PREVIOUS:-the beginning}:"
+  git --no-pager log --format='#   %s' ${PREVIOUS:+"$PREVIOUS..HEAD"}
+} >"$NOTES"
+sh -c "$(git var GIT_EDITOR) \"\$@\"" editor "$NOTES"
+NOTES_TEXT="$(git stripspace --strip-comments <"$NOTES")"
+[ -n "$NOTES_TEXT" ] || fail "Empty release notes."
+
+read -r -p "Publish $TAG (commit, tag, push and GitHub Release)? [y/N] " answer
 case "$answer" in
   y | Y | yes) ;;
   *) exit 1 ;;
 esac
 
 git commit --quiet -m "chore(release): $TAG" app.json package.json
-git tag -a "$TAG" -m "NoSpyFi $VERSION"
+# The tag carries the notes; release-publish.sh reads the GitHub Release's title and body from it.
+printf 'NoSpyFi %s\n\n%s\n' "$VERSION" "$NOTES_TEXT" | git tag -a "$TAG" -F -
+rm -f "$NOTES"
 trap - EXIT
-git push --atomic origin main "$TAG" || fail "Push failed: the commit and tag are local. Retry with: git push --atomic origin main $TAG"
+git push --atomic origin main "$TAG" || fail "Push failed: the commit and tag are local. Retry with: git push --atomic origin main $TAG && pnpm release:publish $TAG"
 
-echo
-echo "Pushed $TAG. Last step is yours: create the release, attach the APK and publish."
-echo "  APK:     $ROOT/dist/NoSpyFi-$VERSION.apk"
-echo "  Release: https://github.com/cuginoAle/web-radio/releases/new?tag=$TAG"
+scripts/release-publish.sh "$TAG" || fail "Publishing the GitHub Release failed; the tag is pushed. Retry with: pnpm release:publish $TAG"
