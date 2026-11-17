@@ -13,6 +13,6 @@ NoSpyFi's audience, in order, is privacy-minded Android users who already run F-
 ## Consequences
 
 - One signing key for every channel. Users never have to reinstall to switch channels, so no export/import feature is needed first. A channel that would re-sign with its own key stays out until it can ship ours.
-- The update check is a new network call: it gets a row in the README's "What leaves your phone", and the app gains the `REQUEST_INSTALL_PACKAGES` permission. Whether it is on by default, what it sends and where it asks are decided separately. That design must keep a future F-Droid build possible: F-Droid forbids update downloads without opt-in.
+- The update check is a new network call: it gets a row in the README's "What leaves your phone", and the app gains the `REQUEST_INSTALL_PACKAGES` permission. It stays off until the user turns it on (asked on the welcome screen, changeable later from the ⓘ screen) and asks GitHub's latest-release API at most once a day when the app is opened. Because it is opt-in, a future F-Droid build can keep it: F-Droid forbids update downloads only without opt-in.
 - Installing an update stops playback, and the user must switch on "Install unknown apps" for NoSpyFi once.
 - Losing the release key means every user must reinstall, which deletes their favourites and listening time.

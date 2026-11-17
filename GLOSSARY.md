@@ -99,3 +99,7 @@ _Avoid_: store, source, repo, market
 **Update notice**:
 How a user learns that a newer release exists without going to look for it: a system notification from their channel's client, or a notice when they next open the app.
 _Avoid_: update alert, update prompt
+
+**Update check**:
+The app asking whether a newer release exists, at most once a day and only if the user turned it on.
+_Avoid_: auto-update, updater, update server
