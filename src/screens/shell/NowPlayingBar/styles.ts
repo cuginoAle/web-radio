@@ -10,5 +10,5 @@ export const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: colors.border,
   },
-  song: { color: colors.accent, fontFamily: fonts.medium, fontSize: fontSizes.body },
+  song: { color: colors.accent, fontFamily: fonts.medium, fontSize: fontSizes.body, textAlign: 'right' },
 });

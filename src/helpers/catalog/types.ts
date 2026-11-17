@@ -18,6 +18,8 @@ export type CatalogStation = {
   languages: string;
   codec: string;
   bitrate: number;
+  /** GLOSSARY: Popularity. */
+  clickCount: number;
   hls: boolean;
   lastCheckOk: boolean;
   lastCheckTime: string | null;

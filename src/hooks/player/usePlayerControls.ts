@@ -13,6 +13,7 @@ const snapshotAsStation = ({ uuid, name, streamUrl, favicon }: StationSnapshot):
   favicon,
   country: '',
   firstTag: null,
+  bitrate: 0,
   lastCheckOk: true,
 });
 

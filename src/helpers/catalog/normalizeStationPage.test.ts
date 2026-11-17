@@ -19,6 +19,7 @@ it('turns a directory record into a catalog station', () => {
         languages: 'english',
         codec: 'MP3',
         bitrate: 320,
+        clickCount: 412,
         hls: false,
         lastCheckOk: true,
         lastCheckTime: '2026-11-06T17:10:35Z',
@@ -73,7 +74,7 @@ it.each([
 
 it('falls back safely when optional fields are missing, null or malformed', () => {
   const page = normalizeStationPage([
-    { stationuuid: 'u-1', url: 'http://radio.example/live', bitrate: 'fast', hls: null, languagecodes: null },
+    { stationuuid: 'u-1', url: 'http://radio.example/live', bitrate: 'fast', clickcount: null, hls: null, languagecodes: null },
   ]);
 
   expect(page).toEqual({
@@ -91,6 +92,7 @@ it('falls back safely when optional fields are missing, null or malformed', () =
         languages: '',
         codec: '',
         bitrate: 0,
+        clickCount: 0,
         hls: false,
         lastCheckOk: false,
         lastCheckTime: null,

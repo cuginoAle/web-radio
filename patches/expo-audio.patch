@@ -1,8 +1,33 @@
+diff --git a/android/src/main/java/expo/modules/audio/AudioModule.kt b/android/src/main/java/expo/modules/audio/AudioModule.kt
+index 6c81fce3dd518d3b82e3280940a001c7be84dd0a..7e72f4713dfadf76942bdfef7111a38b1b15613e 100644
+--- a/android/src/main/java/expo/modules/audio/AudioModule.kt
++++ b/android/src/main/java/expo/modules/audio/AudioModule.kt
+@@ -730,6 +730,11 @@ class AudioModule : Module() {
+         }
+       }
+ 
++      // Web Radio patch (docs/adr/0005)
++      Function("setSpectrumEnabled") { player: AudioPlayer, enabled: Boolean ->
++        player.setSpectrumEnabled(enabled)
++      }
++
+       Function("setAudioSamplingEnabled") { player: AudioPlayer, enabled: Boolean ->
+         runOnMain {
+           player.setSamplingEnabled(enabled)
 diff --git a/android/src/main/java/expo/modules/audio/AudioPlayer.kt b/android/src/main/java/expo/modules/audio/AudioPlayer.kt
-index fb2d0b57fb8718df04e5c073b70837b2658f2c16..7663f310e1614487e31e669f330b0aeda1060389 100644
+index fb2d0b57fb8718df04e5c073b70837b2658f2c16..6ba0adac70228c7c85415f25d4ffce9c480e727c 100644
 --- a/android/src/main/java/expo/modules/audio/AudioPlayer.kt
 +++ b/android/src/main/java/expo/modules/audio/AudioPlayer.kt
-@@ -15,6 +15,7 @@ import androidx.media3.common.util.UnstableApi
+@@ -4,6 +4,8 @@ import android.Manifest
+ import android.content.Context
+ import android.content.pm.PackageManager
+ import android.media.audiofx.Visualizer
++import android.os.Handler
++import android.os.Looper
+ import android.util.Log
+ import androidx.core.content.ContextCompat
+ import androidx.media3.common.AudioAttributes
+@@ -15,6 +17,7 @@ import androidx.media3.common.util.UnstableApi
  import androidx.media3.exoplayer.DefaultLoadControl
  import androidx.media3.exoplayer.ExoPlayer
  import androidx.media3.exoplayer.source.MediaSource
@@ -10,15 +35,30 @@ index fb2d0b57fb8718df04e5c073b70837b2658f2c16..7663f310e1614487e31e669f330b0aed
  import androidx.media3.session.MediaSession
  import expo.modules.audio.service.AudioPlaybackServiceConnection
  import expo.modules.kotlin.AppContext
-@@ -23,6 +24,7 @@ import java.lang.ref.WeakReference
+@@ -23,6 +26,8 @@ import java.lang.ref.WeakReference
  
  private const val PLAYBACK_STATUS_UPDATE = "playbackStatusUpdate"
  private const val AUDIO_SAMPLE_UPDATE = "audioSampleUpdate"
 +private const val STREAM_METADATA_UPDATE = "streamMetadataUpdate"
++private const val SPECTRUM_UPDATE = "spectrumUpdate"
  private const val SEEK_JUMP_INTERVAL_MS: Long = 10_000
  
  @UnstableApi
-@@ -91,6 +93,15 @@ class AudioPlayer(
+@@ -31,9 +36,12 @@ class AudioPlayer(
+   appContext: AppContext,
+   source: MediaSource?,
+   updateInterval: Double,
+-  bufferDurationMs: Long = 0
++  bufferDurationMs: Long = 0,
++  // Web Radio patch (docs/adr/0005): taps the decoded audio to measure the Spectrum.
++  private val spectrum: SpectrumTap = SpectrumTap()
+ ) : BaseAudioPlayer(
+   player = ExoPlayer.Builder(context)
++    .setRenderersFactory(spectrum.renderersFactory(context))
+     .setLooper(context.mainLooper)
+     .setAudioAttributes(AudioAttributes.DEFAULT, false)
+     .setHandleAudioBecomingNoisy(true)
+@@ -91,11 +99,26 @@ class AudioPlayer(
  
    init {
      installPlayerListeners()
@@ -31,19 +71,269 @@ index fb2d0b57fb8718df04e5c073b70837b2658f2c16..7663f310e1614487e31e669f330b0aed
 +        }
 +      }
 +    })
++    val main = Handler(Looper.getMainLooper())
++    spectrum.onBands = { bands -> main.post { emit(SPECTRUM_UPDATE, mapOf("bands" to bands.toList())) } }
      source?.let {
        setMediaSource(source)
      }
+   }
+ 
++  fun setSpectrumEnabled(enabled: Boolean) {
++    spectrum.enabled = enabled
++  }
++
+   fun setMediaSource(source: MediaSource) {
+     previousPlaybackState = Player.STATE_IDLE
+     ref.setMediaSource(source)
+diff --git a/android/src/main/java/expo/modules/audio/SpectrumBands.kt b/android/src/main/java/expo/modules/audio/SpectrumBands.kt
+new file mode 100644
+index 0000000000000000000000000000000000000000..da4c71123560a59d1c191c837a6dfdbe413a948e
+--- /dev/null
++++ b/android/src/main/java/expo/modules/audio/SpectrumBands.kt
+@@ -0,0 +1,92 @@
++package expo.modules.audio
++
++import kotlin.math.PI
++import kotlin.math.ceil
++import kotlin.math.cos
++import kotlin.math.log10
++import kotlin.math.max
++import kotlin.math.pow
++import kotlin.math.sin
++
++// Web Radio patch (docs/adr/0005): the band maths of the Spectrum. Pure Kotlin, no Android types.
++
++internal const val SPECTRUM_WINDOW = 4096 // ~11 Hz bins at 44.1 kHz: the lowest bands stay distinct
++private const val BANDS = 20
++private const val MIN_HZ = 40.0
++private const val MAX_HZ = 16_000.0
++private const val FLOOR_DB = -60.0
++private const val CEILING_DB = -10.0
++private const val FALL_PER_FRAME = 0.08f // fast rise, slow fall
++private const val FULL_SCALE = (SPECTRUM_WINDOW / 4.0) * (SPECTRUM_WINDOW / 4.0) // peak bin power of a full-scale sine
++
++internal class SpectrumBands {
++  private val hann = FloatArray(SPECTRUM_WINDOW) { (0.5 - 0.5 * cos(2 * PI * it / (SPECTRUM_WINDOW - 1))).toFloat() }
++  private val edges = DoubleArray(BANDS + 1) { MIN_HZ * (MAX_HZ / MIN_HZ).pow(it.toDouble() / BANDS) }
++  private val re = FloatArray(SPECTRUM_WINDOW)
++  private val im = FloatArray(SPECTRUM_WINDOW)
++  private val shown = FloatArray(BANDS)
++
++  fun reset() = shown.fill(0f)
++
++  /** Levels 0..1 of the last SPECTRUM_WINDOW mono samples; `ring[start]` is the oldest one. */
++  fun analyse(ring: FloatArray, start: Int, sampleRate: Int): FloatArray {
++    for (i in 0 until SPECTRUM_WINDOW) {
++      re[i] = ring[(start + i) % SPECTRUM_WINDOW] * hann[i]
++      im[i] = 0f
++    }
++    fft(re, im)
++    val binHz = sampleRate.toDouble() / SPECTRUM_WINDOW
++    for (band in 0 until BANDS) {
++      // A bin belongs to the band its centre frequency falls in.
++      val from = ceil(edges[band] / binHz).toInt()
++      val to = max(from + 1, ceil(edges[band + 1] / binHz).toInt()).coerceAtMost(SPECTRUM_WINDOW / 2)
++      var power = 0.0
++      for (bin in from until to) power += re[bin] * re[bin] + im[bin] * im[bin]
++      val db = 10 * log10(power / FULL_SCALE + 1e-12)
++      val level = ((db - FLOOR_DB) / (CEILING_DB - FLOOR_DB)).coerceIn(0.0, 1.0).toFloat()
++      shown[band] = max(level, shown[band] - FALL_PER_FRAME)
++    }
++    return shown.copyOf()
++  }
++
++  // In-place iterative radix-2 FFT.
++  private fun fft(re: FloatArray, im: FloatArray) {
++    val n = re.size
++    var j = 0
++    for (i in 1 until n) {
++      var bit = n shr 1
++      while (j and bit != 0) {
++        j = j xor bit
++        bit = bit shr 1
++      }
++      j = j xor bit
++      if (i < j) {
++        re[i] = re[j].also { re[j] = re[i] }
++        im[i] = im[j].also { im[j] = im[i] }
++      }
++    }
++    var len = 2
++    while (len <= n) {
++      val stepRe = cos(-2 * PI / len).toFloat()
++      val stepIm = sin(-2 * PI / len).toFloat()
++      for (i in 0 until n step len) {
++        var wRe = 1f
++        var wIm = 0f
++        for (k in 0 until len / 2) {
++          val a = i + k
++          val b = a + len / 2
++          val tRe = re[b] * wRe - im[b] * wIm
++          val tIm = re[b] * wIm + im[b] * wRe
++          re[b] = re[a] - tRe
++          im[b] = im[a] - tIm
++          re[a] += tRe
++          im[a] += tIm
++          val next = wRe * stepRe - wIm * stepIm
++          wIm = wRe * stepIm + wIm * stepRe
++          wRe = next
++        }
++      }
++      len = len shl 1
++    }
++  }
++}
+diff --git a/android/src/main/java/expo/modules/audio/SpectrumTap.kt b/android/src/main/java/expo/modules/audio/SpectrumTap.kt
+new file mode 100644
+index 0000000000000000000000000000000000000000..3d16febb1a50b4ae99b82fee023bf57dad7389f0
+--- /dev/null
++++ b/android/src/main/java/expo/modules/audio/SpectrumTap.kt
+@@ -0,0 +1,124 @@
++package expo.modules.audio
++
++import android.content.Context
++import androidx.media3.common.C
++import androidx.media3.common.util.UnstableApi
++import androidx.media3.exoplayer.DefaultRenderersFactory
++import androidx.media3.exoplayer.audio.AudioSink
++import androidx.media3.exoplayer.audio.DefaultAudioSink
++import androidx.media3.exoplayer.audio.ForwardingAudioSink
++import androidx.media3.exoplayer.audio.TeeAudioProcessor
++import java.nio.ByteBuffer
++import java.nio.ByteOrder
++
++private const val HOP = 2048 // one analysis every ~46 ms: about 21 a second
++private const val MAX_PENDING = 64 // ~3 s: past this the clock is not telling us anything, stop holding levels back
++
++/**
++ * Web Radio patch (docs/adr/0005): measures the Spectrum from the decoded audio on its way to the
++ * speaker, so no Visualizer and no RECORD_AUDIO. The audio reaches the tap before it is heard, so
++ * each analysis waits until the sink's clock reaches it.
++ */
++@UnstableApi
++class SpectrumTap : TeeAudioProcessor.AudioBufferSink {
++  @Volatile var enabled = false
++
++  /** Called on the playback thread with 20 levels, 0..1. */
++  var onBands: ((FloatArray) -> Unit)? = null
++
++  private val bands = SpectrumBands()
++  private val ring = FloatArray(SPECTRUM_WINDOW)
++  private val pending = ArrayDeque<Pair<Long, FloatArray>>() // media time (µs) the analysis is heard at
++  private var write = 0
++  private var sinceHop = 0
++  private var sampleRate = 44_100
++  private var channels = 2
++  private var encoding = C.ENCODING_PCM_16BIT
++  private var frames = 0L // since the last flush
++  private var startUs = C.TIME_UNSET
++  private var lastBufferUs = C.TIME_UNSET
++
++  fun renderersFactory(context: Context) = object : DefaultRenderersFactory(context) {
++    override fun buildAudioSink(context: Context, enableFloatOutput: Boolean, enableAudioTrackPlaybackParams: Boolean): AudioSink {
++      val sink = DefaultAudioSink.Builder(context)
++        .setEnableFloatOutput(enableFloatOutput)
++        .setEnableAudioOutputPlaybackParameters(enableAudioTrackPlaybackParams)
++        .setAudioProcessors(arrayOf(TeeAudioProcessor(this@SpectrumTap)))
++        .build()
++      return object : ForwardingAudioSink(sink) {
++        override fun handleBuffer(buffer: ByteBuffer, presentationTimeUs: Long, encodedAccessUnitCount: Int): Boolean {
++          lastBufferUs = presentationTimeUs
++          val handled = super.handleBuffer(buffer, presentationTimeUs, encodedAccessUnitCount)
++          release(getCurrentPositionUs(false))
++          return handled
++        }
++
++        override fun flush() {
++          super.flush()
++          restart()
++        }
++      }
++    }
++  }
++
++  override fun flush(sampleRateHz: Int, channelCount: Int, encoding: Int) {
++    sampleRate = sampleRateHz
++    channels = channelCount
++    this.encoding = encoding
++    restart()
++  }
++
++  override fun handleBuffer(buffer: ByteBuffer) {
++    val sampleBytes = when (encoding) {
++      C.ENCODING_PCM_16BIT -> 2
++      C.ENCODING_PCM_FLOAT -> 4
++      else -> return // other formats leave the bars flat
++    }
++    val count = buffer.remaining() / (sampleBytes * channels)
++    if (startUs == C.TIME_UNSET) startUs = lastBufferUs
++    if (!enabled) {
++      frames += count
++      pending.clear()
++      bands.reset()
++      return
++    }
++    val data = buffer.order(ByteOrder.nativeOrder())
++    var at = buffer.position()
++    repeat(count) {
++      var sum = 0f
++      repeat(channels) {
++        sum += if (sampleBytes == 2) data.getShort(at) / 32768f else data.getFloat(at)
++        at += sampleBytes
++      }
++      ring[write] = sum / channels
++      write = (write + 1) % SPECTRUM_WINDOW
++      frames++
++      if (++sinceHop == HOP) {
++        sinceHop = 0
++        analyse()
++      }
++    }
++  }
++
++  private fun analyse() {
++    // The window's centre is what the levels describe.
++    val heardAtUs = startUs + (frames - SPECTRUM_WINDOW / 2) * 1_000_000L / sampleRate
++    pending.addLast(heardAtUs to bands.analyse(ring, write, sampleRate))
++    if (pending.size > MAX_PENDING) onBands?.invoke(pending.removeFirst().second)
++  }
++
++  private fun release(positionUs: Long) {
++    var latest: FloatArray? = null
++    while (pending.isNotEmpty() && pending.first().first <= positionUs) latest = pending.removeFirst().second
++    latest?.let { onBands?.invoke(it) }
++  }
++
++  private fun restart() {
++    frames = 0
++    startUs = C.TIME_UNSET
++    sinceHop = 0
++    pending.clear()
++    ring.fill(0f)
++    bands.reset()
++  }
++}
 diff --git a/build/AudioModule.types.d.ts b/build/AudioModule.types.d.ts
-index 0d63c9b949cfae7a101902fc3bb70fcf46094f68..c37cbe78e63cfb8f65a494e2569b16e3394289d5 100644
+index 0d63c9b949cfae7a101902fc3bb70fcf46094f68..1efd21532ff8538f2c163203f4fa2495a2c41574 100644
 --- a/build/AudioModule.types.d.ts
 +++ b/build/AudioModule.types.d.ts
-@@ -222,6 +222,8 @@ export type AudioEvents = {
+@@ -160,6 +160,8 @@ export declare class AudioPlayer extends SharedObject<AudioEvents> {
+      * @hidden
+      */
+     setAudioSamplingEnabled(enabled: boolean): void;
++    /** Web Radio patch (docs/adr/0005): starts or stops measuring the Spectrum of what this player plays. */
++    setSpectrumEnabled(enabled: boolean): void;
+     /**
+      * Sets or removes this audio player as the active player for lock screen controls.
+      * Only one player can control the lock screen at a time.
+@@ -222,6 +224,10 @@ export type AudioEvents = {
      playbackStatusUpdate(status: AudioStatus): void;
      /** Fired when audio sampling is enabled and new sample data is available. */
      audioSampleUpdate(data: AudioSample): void;
 +    /** Web Radio patch (docs/adr/0003): the ICY StreamTitle of a live stream, empty when the stream sends none. */
 +    streamMetadataUpdate(data: { title: string }): void;
++    /** Web Radio patch (docs/adr/0005): the Spectrum, 20 levels from 0 to 1, low to high frequency. */
++    spectrumUpdate(data: { bands: number[] }): void;
  };
  export declare class AudioRecorder extends SharedObject<RecordingEvents> {
      /**

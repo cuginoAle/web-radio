@@ -65,7 +65,8 @@
   "jest": {
     "preset": "jest-expo",
     "moduleNameMapper": {
-      "^@/assets/(.*)$": "<rootDir>/assets/$1"
+      "^@/assets/(.*)$": "<rootDir>/assets/$1",
+      "^react-native-reanimated$": "<rootDir>/test/fakes/fakeReanimated.ts"
     }
   }
 }

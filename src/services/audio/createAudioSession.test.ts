@@ -266,3 +266,23 @@ it('an unsupported source that makes the native player throw becomes the same er
 
   expect(state().status).toBe('error');
 });
+
+it('measures the spectrum only while someone is watching it', () => {
+  const { player, session } = setup();
+  const seen: number[][] = [];
+
+  const stopFirst = session.watchSpectrum((bands) => seen.push(bands));
+  const stopSecond = session.watchSpectrum(() => undefined);
+  expect(player.spectrumEnabled).toBe(true);
+
+  player.emitSpectrum([0.5, 0.2]);
+  expect(seen).toEqual([[0.5, 0.2]]);
+
+  stopFirst();
+  expect(player.spectrumEnabled).toBe(true);
+  player.emitSpectrum([0.9, 0.9]);
+  expect(seen).toHaveLength(1);
+
+  stopSecond();
+  expect(player.spectrumEnabled).toBe(false);
+});

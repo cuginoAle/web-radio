@@ -9,6 +9,7 @@ import { startTestApp } from '@test/ui/startTestApp';
 const catalog = [
   rawStation({ stationuuid: 'a', name: 'Alfa Radio', tags: 'jazz', country: 'Italy' }),
   rawStation({ stationuuid: 'b', name: 'Beta Radio', tags: 'jazz', lastcheckok: 0 }),
+  rawStation({ stationuuid: 'c', name: 'Gamma Radio', tags: 'jazz', country: 'Italy', bitrate: 0 }),
 ];
 
 async function setup(uuid = 'a') {
@@ -21,6 +22,11 @@ async function setup(uuid = 'a') {
 it('shows the real data of the station', async () => {
   await setup();
   expect(screen.getByText('Alfa Radio')).toBeOnTheScreen();
+  expect(screen.getByText('320 kbps · jazz · Italy')).toBeOnTheScreen();
+});
+
+it('leaves the bitrate out when the directory does not know it', async () => {
+  await setup('c');
   expect(screen.getByText('jazz · Italy')).toBeOnTheScreen();
 });
 
@@ -43,7 +49,7 @@ it('pressing play starts the station with its list frozen, then the button pause
 
 it('tapping the row itself also starts the station', async () => {
   const { state } = await setup();
-  await fireEvent.press(screen.getByRole('button', { name: 'Alfa Radio, jazz · Italy' }));
+  await fireEvent.press(screen.getByRole('button', { name: 'Alfa Radio, 320 kbps · jazz · Italy' }));
   await waitFor(() => expect(state().player.station?.uuid).toBe('a'));
 });
 

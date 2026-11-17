@@ -1,11 +1,11 @@
 import { ActivityIndicator, Pressable, ScrollView, Text, useWindowDimensions, View } from 'react-native';
 
-import { Equalizer } from '@/components/Equalizer';
 import { IconButton } from '@/components/IconButton';
 import { LiveBadge } from '@/components/LiveBadge';
 import { PlayerControls } from '@/components/PlayerControls';
 import { ArtworkToggle } from '@/components/PlayerPanel/ArtworkToggle';
 import { styles } from '@/components/PlayerPanel/styles';
+import { Spectrum } from '@/components/Spectrum';
 import { StationArtwork } from '@/components/StationArtwork';
 import { nowPlayingLine } from '@/helpers/player/nowPlayingLine';
 import { statusLabel } from '@/helpers/player/statusLabel';
@@ -33,59 +33,61 @@ export function PlayerPanel({ side = false }: Props) {
   }
 
   return (
-    <ScrollView contentContainerStyle={styles.root}>
-      {side ? (
-        <ArtworkToggle favicon={station.favicon} size={artworkSize} status={status} onPress={toggleMain} />
-      ) : (
-        <StationArtwork favicon={station.favicon} size={artworkSize} />
-      )}
-      <View style={styles.heading}>
-        <View style={styles.titles}>
-          <Text style={styles.name} accessibilityRole="header">
-            {station.name}
-          </Text>
-          {station.subtitle ? <Text style={styles.subtitle}>{station.subtitle}</Text> : null}
-          {song ? (
-            <Text style={styles.nowPlaying} numberOfLines={1}>
-              {song}
+    <View style={styles.frame}>
+      <Spectrum />
+      <ScrollView contentContainerStyle={styles.root}>
+        {side ? (
+          <ArtworkToggle favicon={station.favicon} size={artworkSize} status={status} onPress={toggleMain} />
+        ) : (
+          <StationArtwork favicon={station.favicon} size={artworkSize} />
+        )}
+        <View style={styles.heading}>
+          <View style={styles.titles}>
+            <Text style={styles.name} accessibilityRole="header">
+              {station.name}
             </Text>
-          ) : null}
+            {station.subtitle ? <Text style={styles.subtitle}>{station.subtitle}</Text> : null}
+            {song ? (
+              <Text style={styles.nowPlaying} numberOfLines={1}>
+                {song}
+              </Text>
+            ) : null}
+          </View>
+          <IconButton
+            icon={isFavorite ? 'heart' : 'heart-outline'}
+            color={isFavorite ? colors.accent : colors.text}
+            label={isFavorite ? 'Remove from favourites' : 'Add to favourites'}
+            selected={isFavorite}
+            onPress={onToggleFavorite}
+          />
         </View>
-        <IconButton
-          icon={isFavorite ? 'heart' : 'heart-outline'}
-          color={isFavorite ? colors.accent : colors.text}
-          label={isFavorite ? 'Remove from favourites' : 'Add to favourites'}
-          selected={isFavorite}
-          onPress={onToggleFavorite}
-        />
-      </View>
-      {side ? null : (
-        <View style={styles.status} accessibilityLiveRegion="polite">
-          {status === 'playing' ? <LiveBadge /> : null}
-          {status === 'playing' ? <Equalizer /> : null}
-          {status === 'loading' || status === 'buffering' ? <ActivityIndicator color={colors.accent} /> : null}
-          <Text style={styles.statusLabel}>{statusLabel(status)}</Text>
-        </View>
-      )}
-      {status === 'error' ? (
-        <View style={styles.errorBox}>
-          <Text style={styles.error}>{player.error}</Text>
-          {side ? null : (
-            <Pressable accessibilityRole="button" onPress={retry} style={styles.retry}>
-              <Text style={styles.retryLabel}>Retry</Text>
-            </Pressable>
-          )}
-        </View>
-      ) : side ? null : (
-        <PlayerControls
-          isActive={isActive}
-          canPrevious={player.canPrevious}
-          canNext={player.canNext}
-          onToggle={toggleMain}
-          onPrevious={previous}
-          onNext={next}
-        />
-      )}
-    </ScrollView>
+        {side ? null : (
+          <View style={styles.status} accessibilityLiveRegion="polite">
+            {status === 'playing' ? <LiveBadge /> : null}
+            {status === 'loading' || status === 'buffering' ? <ActivityIndicator color={colors.accent} /> : null}
+            <Text style={styles.statusLabel}>{statusLabel(status)}</Text>
+          </View>
+        )}
+        {status === 'error' ? (
+          <View style={styles.errorBox}>
+            <Text style={styles.error}>{player.error}</Text>
+            {side ? null : (
+              <Pressable accessibilityRole="button" onPress={retry} style={styles.retry}>
+                <Text style={styles.retryLabel}>Retry</Text>
+              </Pressable>
+            )}
+          </View>
+        ) : side ? null : (
+          <PlayerControls
+            isActive={isActive}
+            canPrevious={player.canPrevious}
+            canNext={player.canNext}
+            onToggle={toggleMain}
+            onPrevious={previous}
+            onNext={next}
+          />
+        )}
+      </ScrollView>
+    </View>
   );
 }

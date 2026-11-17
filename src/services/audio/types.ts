@@ -21,7 +21,11 @@ export type SessionPlayer = {
   replace(source: { uri: string }): void;
   play(): void;
   pause(): void;
-  addListener<E extends 'playbackStatusUpdate' | 'streamMetadataUpdate'>(event: E, listener: AudioEvents[E]): { remove(): void };
+  addListener<E extends 'playbackStatusUpdate' | 'streamMetadataUpdate' | 'spectrumUpdate'>(
+    event: E,
+    listener: AudioEvents[E],
+  ): { remove(): void };
+  setSpectrumEnabled(enabled: boolean): void;
   setActiveForLockScreen(active: boolean, metadata?: AudioMetadata, options?: AudioLockScreenOptions): void;
   updateLockScreenMetadata(metadata: AudioMetadata): void;
 };

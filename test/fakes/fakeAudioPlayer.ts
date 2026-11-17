@@ -25,6 +25,7 @@ export class FakeAudioPlayer {
   uri: string | null = null;
   playing = false;
   lockScreen: AudioMetadata | null = null;
+  spectrumEnabled = false;
   private listeners: Partial<AudioEvents> = {};
 
   replace(source: { uri: string }) {
@@ -53,6 +54,10 @@ export class FakeAudioPlayer {
     this.lockScreen = metadata;
   }
 
+  setSpectrumEnabled(enabled: boolean) {
+    this.spectrumEnabled = enabled;
+  }
+
   emit(partial: Partial<AudioStatus>) {
     this.listeners.playbackStatusUpdate?.({ ...baseStatus, ...partial });
   }
@@ -71,5 +76,10 @@ export class FakeAudioPlayer {
   /** The stream announces what is on air (ICY `StreamTitle`, via the patched expo-audio). */
   emitTitle(title: string) {
     this.listeners.streamMetadataUpdate?.({ title });
+  }
+
+  /** The native tap measured the audio (Spectrum, via the patched expo-audio). */
+  emitSpectrum(bands: number[]) {
+    this.listeners.spectrumUpdate?.({ bands });
   }
 }

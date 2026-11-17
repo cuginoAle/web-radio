@@ -8,7 +8,7 @@ import { DiscoverHeader } from '@/screens/discover/DiscoverHeader';
 import { styles } from '@/screens/discover/styles';
 import { playFromList } from '@/services/audio/playFromList';
 
-const TOP_TAGS = 12;
+const TOP_TAGS = 24;
 
 export function DiscoverScreen() {
   const tags = useTags(TOP_TAGS);

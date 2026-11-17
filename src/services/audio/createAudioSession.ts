@@ -1,5 +1,6 @@
 import type { AudioStatus } from 'expo-audio';
 
+import { createSpectrumWatch } from '@/services/audio/createSpectrumWatch';
 import type { SessionPlayer, SourceList, StationSnapshot } from '@/services/audio/types';
 import type { GlobalStore } from '@/state/global-state';
 import type { PlayerState } from '@/state/slices/player';
@@ -136,6 +137,7 @@ export function createAudioSession({ player, store, resolveStation }: Deps) {
     },
     resume: reload,
     retry: reload,
+    watchSpectrum: createSpectrumWatch(player),
   };
 }
 

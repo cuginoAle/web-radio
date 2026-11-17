@@ -1,4 +1,6 @@
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react-native';
+import { AppState } from 'react-native';
+import { useReducedMotion } from 'react-native-reanimated';
 
 import { MiniPlayer } from '@/components/MiniPlayer';
 import { PlayerPanel } from '@/components/PlayerPanel';
@@ -11,6 +13,8 @@ import { startTestApp } from '@test/ui/startTestApp';
 
 jest.mock('expo-router', () => jest.requireActual('@test/fakes/fakeRouter'));
 
+// The spectrum is decoration: hidden from screen readers, so from the default queries too.
+const hidden = { includeHiddenElements: true };
 const catalog = ['a', 'b'].map((uuid) => rawStation({ stationuuid: uuid, name: `Radio ${uuid}`, tags: 'jazz' }));
 
 async function listening(index = 0) {
@@ -166,5 +170,62 @@ describe('MiniPlayer', () => {
 
     await fireEvent.press(screen.getByRole('button', { name: 'Pause' }));
     expect(state().player.status).toBe('paused');
+  });
+
+  it('shows the spectrum behind the card only while playing, and measures it only then', async () => {
+    const { player, audio } = await listening();
+    await render(<MiniPlayer />);
+    expect(screen.queryByTestId('spectrum', hidden)).toBeNull();
+    expect(player.spectrumEnabled).toBe(false);
+
+    await act(async () => player.emitPlaying());
+    expect(screen.getByTestId('spectrum', hidden)).toBeOnTheScreen();
+    expect(player.spectrumEnabled).toBe(true);
+
+    await act(async () => audio.pause());
+    expect(screen.queryByTestId('spectrum', hidden)).toBeNull();
+    expect(player.spectrumEnabled).toBe(false);
+  });
+
+  it('stops measuring the spectrum while the app is in the background', async () => {
+    const { player } = await listening();
+    await render(<MiniPlayer />);
+    await act(async () => player.emitPlaying());
+    expect(player.spectrumEnabled).toBe(true);
+
+    const appStateChanged = jest.mocked(AppState.addEventListener).mock.lastCall![1];
+    await act(async () => appStateChanged('background'));
+    expect(player.spectrumEnabled).toBe(false);
+
+    await act(async () => appStateChanged('active'));
+    expect(player.spectrumEnabled).toBe(true);
+  });
+
+  it('draws no spectrum when the system asks for no animations', async () => {
+    jest.mocked(useReducedMotion).mockReturnValue(true);
+    const { player } = await listening();
+    await render(<MiniPlayer />);
+    await act(async () => player.emitPlaying());
+
+    expect(screen.queryByTestId('spectrum', hidden)).toBeNull();
+    expect(player.spectrumEnabled).toBe(false);
+    jest.mocked(useReducedMotion).mockReturnValue(false);
+  });
+});
+
+describe.each([
+  ['phone full player', <PlayerPanel key="full" />],
+  ['landscape side panel', <PlayerPanel key="side" side />],
+])('Spectrum in the %s', (_name, panel) => {
+  it('is drawn along the bottom while playing and gone when paused', async () => {
+    const { player, audio } = await listening();
+    await render(panel);
+    expect(screen.queryByTestId('spectrum', hidden)).toBeNull();
+
+    await act(async () => player.emitPlaying());
+    expect(screen.getByTestId('spectrum', hidden)).toBeOnTheScreen();
+
+    await act(async () => audio.pause());
+    expect(screen.queryByTestId('spectrum', hidden)).toBeNull();
   });
 });

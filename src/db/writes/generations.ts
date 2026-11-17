@@ -1,7 +1,7 @@
 import type { CatalogStation } from '@/helpers/catalog/types';
 import type { Db, SqlValue } from '@/db/types';
 
-const STATION_ROWS_PER_INSERT = 100; // 16 columns: well below SQLite's bound-parameter limit
+const STATION_ROWS_PER_INSERT = 100; // 17 columns: well below SQLite's bound-parameter limit
 const TAG_ROWS_PER_INSERT = 400;
 
 const chunks = <T>(items: T[], size: number) =>
@@ -31,12 +31,13 @@ export async function writeStations(txn: Db, generationId: number, stations: Cat
   const stationRows = stations.map((s) => [
     generationId, s.uuid, s.name, s.searchKey, s.url, s.urlResolved, s.favicon, s.country, s.countryCode,
     s.languages, s.codec, s.bitrate, s.hls ? 1 : 0, s.lastCheckOk ? 1 : 0, s.lastCheckTime, s.tags[0]?.label ?? null,
+    s.clickCount,
   ]);
   await insertRows(
     txn,
     'stations',
     ['generation_id', 'uuid', 'name', 'search_key', 'url', 'url_resolved', 'favicon', 'country', 'country_code',
-      'languages', 'codec', 'bitrate', 'hls', 'last_check_ok', 'last_check_time', 'first_tag'],
+      'languages', 'codec', 'bitrate', 'hls', 'last_check_ok', 'last_check_time', 'first_tag', 'click_count'],
     stationRows,
     STATION_ROWS_PER_INSERT,
   );

@@ -16,6 +16,7 @@ const classicVinyl = {
   languagecodes: 'en',
   codec: 'MP3',
   bitrate: 320,
+  clickcount: 412,
   hls: 0,
   lastcheckok: 1,
   lastchecktime_iso8601: '2026-11-06T17:10:35Z',

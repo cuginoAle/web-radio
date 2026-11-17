@@ -61,7 +61,14 @@ CREATE TABLE listening_time (
 );
 `;
 
-const MIGRATIONS = [V1, V2];
+// GLOSSARY: Popularity. A catalogue downloaded before v3 reads 0 everywhere until the next refresh.
+const V3 = `
+ALTER TABLE stations ADD COLUMN click_count INTEGER NOT NULL DEFAULT 0;
+DROP INDEX stations_by_name;
+CREATE INDEX stations_by_popularity ON stations (generation_id, click_count DESC, search_key, uuid);
+`;
+
+const MIGRATIONS = [V1, V2, V3];
 
 /** Brings the schema to the latest version (PRAGMA user_version). */
 export async function migrate(db: Db) {

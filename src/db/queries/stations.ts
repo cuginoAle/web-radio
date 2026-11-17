@@ -11,13 +11,15 @@ export type StationItem = {
   favicon: string | null;
   country: string;
   firstTag: string | null;
+  /** kbps; 0 = unknown. */
+  bitrate: number;
   lastCheckOk: boolean;
 };
 
 type Row = Omit<StationItem, 'lastCheckOk'> & { lastCheckOk: number };
 
 export const STATION_COLUMNS = `s.uuid, s.name, s.url, s.url_resolved AS urlResolved, s.favicon, s.country,
-  s.first_tag AS firstTag, s.last_check_ok AS lastCheckOk`;
+  s.first_tag AS firstTag, s.bitrate, s.last_check_ok AS lastCheckOk`;
 
 export const ACTIVE_GENERATION = "(SELECT CAST(value AS INTEGER) FROM app_metadata WHERE key = 'active_generation')";
 
@@ -32,9 +34,10 @@ export async function getStation(db: Db, uuid: string): Promise<StationItem | nu
 }
 
 export type StationFilter = { query?: string; tag?: string | null };
-export type StationCursor = { key: string; uuid: string };
+export type StationCursor = { clicks: number; key: string; uuid: string };
 
 const PAGE_SIZE = 50;
+const POPULARITY_ORDER = 's.click_count DESC, s.search_key, s.uuid';
 
 const filterClause = ({ query, tag }: StationFilter) => {
   const clauses = [`s.generation_id = ${ACTIVE_GENERATION}`];
@@ -51,23 +54,25 @@ const filterClause = ({ query, tag }: StationFilter) => {
   return { where: clauses.join(' AND '), params };
 };
 
-/** One page of the active catalog in stable alphabetical order (keyset paging). */
+/** One page of the active catalog, most popular first, then alphabetical (keyset paging). */
 export async function listStations(
   db: Db,
   { after = null, limit = PAGE_SIZE, ...filter }: StationFilter & { after?: StationCursor | null; limit?: number },
 ) {
   const { where, params } = filterClause(filter);
-  const rows = await db.getAllAsync<Row & { sortKey: string }>(
-    `SELECT ${STATION_COLUMNS}, s.search_key AS sortKey FROM stations s
-     WHERE ${where} ${after ? 'AND (s.search_key, s.uuid) > (?, ?)' : ''}
-     ORDER BY s.search_key, s.uuid LIMIT ?`,
-    [...params, ...(after ? [after.key, after.uuid] : []), limit + 1],
+  // shortcut: within one click count the cursor rescans the group (~18 ms deep in 37k zero-click rows on a laptop),
+  // split into a UNION of "same count after key" + "lower count" if deep scrolling feels slow on the phone.
+  const rows = await db.getAllAsync<Row & { clicks: number; sortKey: string }>(
+    `SELECT ${STATION_COLUMNS}, s.click_count AS clicks, s.search_key AS sortKey FROM stations s
+     WHERE ${where} ${after ? 'AND (s.click_count < ? OR (s.click_count = ? AND (s.search_key, s.uuid) > (?, ?)))' : ''}
+     ORDER BY ${POPULARITY_ORDER} LIMIT ?`,
+    [...params, ...(after ? [after.clicks, after.clicks, after.key, after.uuid] : []), limit + 1],
   );
   const pageRows = rows.slice(0, limit);
   const last = pageRows[pageRows.length - 1];
   return {
-    items: pageRows.map(({ sortKey: _sortKey, ...row }) => toStationItem(row)),
-    next: rows.length > limit ? { key: last.sortKey, uuid: last.uuid } : null,
+    items: pageRows.map(({ clicks: _clicks, sortKey: _sortKey, ...row }) => toStationItem(row)),
+    next: rows.length > limit ? { clicks: last.clicks, key: last.sortKey, uuid: last.uuid } : null,
   };
 }
 
@@ -75,7 +80,7 @@ export async function listStations(
 export async function listStationUuids(db: Db, filter: StationFilter) {
   const { where, params } = filterClause(filter);
   const rows = await db.getAllAsync<{ uuid: string }>(
-    `SELECT s.uuid FROM stations s WHERE ${where} ORDER BY s.search_key, s.uuid`,
+    `SELECT s.uuid FROM stations s WHERE ${where} ORDER BY ${POPULARITY_ORDER}`,
     params,
   );
   return rows.map((r) => r.uuid);

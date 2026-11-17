@@ -12,7 +12,7 @@ import { TagChips } from '@/screens/search/TagChips';
 import { getRuntime } from '@/services/runtime';
 import { useGlobalState } from '@/state/global-state';
 
-const TOP_TAGS = 12;
+const TOP_TAGS = 50;
 
 export function SearchScreen() {
   const query = useGlobalState((s) => s.searchQuery);

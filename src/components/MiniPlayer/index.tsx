@@ -1,9 +1,9 @@
 import { router } from 'expo-router';
 import { ActivityIndicator, Pressable, Text, View } from 'react-native';
 
-import { Equalizer } from '@/components/Equalizer';
 import { IconButton } from '@/components/IconButton';
 import { styles } from '@/components/MiniPlayer/styles';
+import { Spectrum } from '@/components/Spectrum';
 import { StationArtwork } from '@/components/StationArtwork';
 import { nowPlayingLine } from '@/helpers/player/nowPlayingLine';
 import { statusLabel } from '@/helpers/player/statusLabel';
@@ -19,6 +19,7 @@ export function MiniPlayer() {
 
   return (
     <View style={styles.root}>
+      <Spectrum />
       <Pressable
         accessibilityRole="button"
         accessibilityLabel={`Open player: ${station.name}`}
@@ -35,7 +36,6 @@ export function MiniPlayer() {
           </Text>
         </View>
       </Pressable>
-      {status === 'playing' ? <Equalizer /> : null}
       {status === 'loading' || status === 'buffering' ? <ActivityIndicator color={colors.accent} /> : null}
       {status === 'error' ? (
         <IconButton icon="refresh" label="Retry" onPress={retry} />

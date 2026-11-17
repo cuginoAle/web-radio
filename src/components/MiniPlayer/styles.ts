@@ -12,6 +12,7 @@ export const styles = StyleSheet.create({
     paddingVertical: spacing.xs,
     borderRadius: radius.md,
     backgroundColor: colors.surfaceRaised,
+    overflow: 'hidden', // clips the spectrum to the rounded corners
   },
   main: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: spacing.md, minHeight: TOUCH_TARGET },
   texts: { flex: 1 },

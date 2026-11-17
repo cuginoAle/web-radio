@@ -3,6 +3,7 @@ import { StyleSheet } from 'react-native';
 import { colors, fonts, fontSizes, radius, spacing, TOUCH_TARGET } from '@/theme/tokens';
 
 export const styles = StyleSheet.create({
+  frame: { flex: 1 },
   root: { alignItems: 'center', gap: spacing.xl, padding: spacing.xl },
   prompt: {
     margin: spacing.xl,

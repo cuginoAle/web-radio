@@ -36,6 +36,10 @@ _Avoid_: genre, category
 The set of stations in the active generation that share the same tag key. The interface presents them as "Genres & tags".
 _Avoid_: genre, playlist
 
+**Popularity** (`Popularity`):
+How many times Radio Browser listeners opened a station in the 24 hours before the refresh that produced the active generation; it stays the same until the next refresh. Catalogue lists show the most popular stations first.
+_Avoid_: votes, ranking, trending
+
 ## User
 
 **Favourite** (`Favorite`):
@@ -67,3 +71,7 @@ _Avoid_: top fav, main favourite
 **Now playing** (`NowPlaying`):
 The text the stream itself announces as currently on air (usually "artist - title"); it may be missing, a slogan or an advert. It is neither verified nor stored.
 _Avoid_: track, song, metadata
+
+**Spectrum** (`Spectrum`):
+The band levels of the audio the audio session is playing right now, measured from the decoded stream and never from the microphone; it is neither stored nor sent anywhere.
+_Avoid_: equalizer, visualiser, waveform

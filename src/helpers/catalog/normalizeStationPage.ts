@@ -39,6 +39,7 @@ const toStation = (raw: Raw): CatalogStation => {
     languages: text(raw.language),
     codec: text(raw.codec),
     bitrate: count(raw.bitrate),
+    clickCount: count(raw.clickcount),
     hls: raw.hls === 1,
     lastCheckOk: raw.lastcheckok === 1,
     lastCheckTime: text(raw.lastchecktime_iso8601) || null,

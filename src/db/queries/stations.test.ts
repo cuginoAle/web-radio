@@ -2,38 +2,40 @@ import { listStations, listStationUuids, listTags } from '@/db/queries/stations'
 import { rawStation } from '@test/fixtures/radioBrowserStation';
 import { seedCatalog } from '@test/sqlite/seedCatalog';
 
-const station = (uuid: string, name: string, tags = '') => rawStation({ stationuuid: uuid, name, tags });
+const station = (uuid: string, name: string, tags = '', clickcount = 0) =>
+  rawStation({ stationuuid: uuid, name, tags, clickcount });
 const names = (items: { name: string }[]) => items.map((s) => s.name);
 
-it('lists the catalog alphabetically, ignoring case and accents, with uuid as tie-breaker', async () => {
+it('lists the most popular stations first, then by name ignoring case and accents, then by uuid', async () => {
   const { db } = await seedCatalog([
-    station('u3', 'beta'),
-    station('u2', 'Àlfa'),
-    station('u1', 'alfa'),
-    station('u4', 'Gamma'),
+    station('u3', 'beta', '', 5),
+    station('u2', 'Àlfa', '', 5),
+    station('u5', 'Zulu', '', 0),
+    station('u1', 'alfa', '', 5),
+    station('u4', 'Gamma', '', 90),
   ]);
 
   const page = await listStations(db, {});
 
-  expect(page.items.map((s) => s.uuid)).toEqual(['u1', 'u2', 'u3', 'u4']);
+  expect(page.items.map((s) => s.uuid)).toEqual(['u4', 'u1', 'u2', 'u3', 'u5']);
   expect(page.next).toBeNull();
 });
 
-it('pages through the whole catalog with no overlap or gap, even across identical names', async () => {
+it('pages through the whole catalog with no overlap or gap, across equal and different popularity', async () => {
   const { db } = await seedCatalog([
-    station('u5', 'same'),
-    station('u1', 'same'),
-    station('u3', 'same'),
-    station('u2', 'same'),
-    station('u4', 'zeta'),
+    station('u5', 'same', '', 7),
+    station('u1', 'same', '', 7),
+    station('u6', 'aaa', '', 0),
+    station('u3', 'same', '', 7),
+    station('u7', 'zz', '', 9),
+    station('u2', 'same', '', 7),
+    station('u4', 'zeta', '', 9),
   ]);
 
-  const first = await listStations(db, { limit: 2 });
-  const second = await listStations(db, { limit: 2, after: first.next });
-  const third = await listStations(db, { limit: 2, after: second.next });
+  const pages = [await listStations(db, { limit: 2 })];
+  while (pages[pages.length - 1].next) pages.push(await listStations(db, { limit: 2, after: pages[pages.length - 1].next }));
 
-  expect([first, second, third].flatMap((p) => p.items.map((s) => s.uuid))).toEqual(['u1', 'u2', 'u3', 'u5', 'u4']);
-  expect(third.next).toBeNull();
+  expect(pages.map((p) => p.items.map((s) => s.uuid))).toEqual([['u4', 'u7'], ['u1', 'u2'], ['u3', 'u5'], ['u6']]);
 });
 
 describe('search by name', () => {
@@ -109,12 +111,12 @@ it('lists tag groups by number of stations, then by name, with an optional limit
 });
 
 it('returns every uuid of a filtered list in display order, beyond one page', async () => {
-  const stations = Array.from({ length: 120 }, (_, i) => station(`u${i}`, `Radio ${String(i).padStart(3, '0')}`, 'jazz'));
-  const { db } = await seedCatalog([...stations, station('other', 'Radio 000 bis', 'rock')]);
+  const stations = Array.from({ length: 120 }, (_, i) => station(`u${i}`, `Radio ${String(i).padStart(3, '0')}`, 'jazz', i));
+  const { db } = await seedCatalog([...stations, station('other', 'Radio 000 bis', 'rock', 999)]);
 
   const uuids = await listStationUuids(db, { tag: 'jazz' });
 
   expect(uuids).toHaveLength(120);
-  expect(uuids.slice(0, 2)).toEqual(['u0', 'u1']);
+  expect(uuids.slice(0, 2)).toEqual(['u119', 'u118']);
   expect(uuids).not.toContain('other');
 });
