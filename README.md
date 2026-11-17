@@ -98,6 +98,7 @@ Expo / React Native app with Expo Router, SQLite and a single Zustand store. Bui
 |---|---|
 | `pnpm install` | Install dependencies |
 | `pnpm android` | Generate `android/`, compile a development build and launch it on the device |
+| `pnpm dev:emulator [avd]` | Boot the Android emulator if needed, install the development build on it (never on a phone) and keep Metro attached |
 | `pnpm start` | Start Metro for an already-installed development build |
 | `pnpm test` | Automated tests (Jest; real SQLite via `node:sqlite`) |
 | `pnpm typecheck` | Type check |

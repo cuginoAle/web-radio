@@ -45,6 +45,7 @@
   "scripts": {
     "start": "expo start",
     "android": "expo run:android",
+    "dev:emulator": "scripts/dev-emulator.sh",
     "build:apk": "scripts/build-apk.sh",
     "install:apk": "scripts/install-apk.sh",
     "release": "scripts/release.sh",

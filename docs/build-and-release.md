@@ -51,6 +51,8 @@ pnpm android     # generates android/, builds a debug app and launches it
 pnpm start       # Metro only, for a development build that's already installed
 ```
 
+To debug on the emulator, run `pnpm dev:emulator [avd-name]` ([`scripts/dev-emulator.sh`](../scripts/dev-emulator.sh), default AVD `Medium_Phone_API_36.0`). It boots the emulator if none is running, builds and installs the debug app on it only (a plugged-in phone is ignored) and leaves Metro attached for Fast Refresh; Ctrl-C stops Metro, the emulator keeps running. It refuses to start while `build-apk.sh` or Gradle is running, since they share `android/`. It never uninstalls the app: on `INSTALL_FAILED_INSUFFICIENT_STORAGE` it prints the command and leaves the choice to you (see [Troubleshooting](#9-troubleshooting)).
+
 Before declaring work done, run `pnpm test`, `pnpm typecheck` and `pnpm lint`. The release script runs them too.
 
 ## 4. Release APK and signing
@@ -182,7 +184,7 @@ The repository must be **public**, or the README's Download link and Obtainium c
 | `main is not level with origin/main` | Pull, or push your commits, then retry. |
 | `Tag vX.Y.Z already exists` | That version was already released: pick another bump or version. |
 | `INSTALL_FAILED_UPDATE_INCOMPATIBLE` | The installed app has a different signature: uninstall once (this deletes its data). |
-| `INSTALL_FAILED_INSUFFICIENT_STORAGE` | The device is full. On the emulator, uninstall the app to free space. |
+| `INSTALL_FAILED_INSUFFICIENT_STORAGE` | The device is full. On a phone, free space. On the emulator, uninstalling the app frees little if the old build was small; Android also keeps a low-storage reserve free (500 MB by default), so a nearly full `/data` rejects the 84 MB debug APK. What fixed it here: wipe the AVD (`emulator -avd <name> -wipe-data`), which deletes every app on it. |
 | Install rejected as "not newer" | `versionCode` didn't increase: always release through `pnpm release`. |
 | The song title never shows | `buildFromSource` for expo-audio was removed, so the patch isn't compiled in. |
 | GPG error during the commit or tag | Run `pnpm release` in an interactive terminal so the passphrase prompt can appear. |
