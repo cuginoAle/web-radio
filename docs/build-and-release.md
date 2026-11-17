@@ -4,13 +4,13 @@ This document covers everything from turning the source into an APK to getting a
 
 Each stage, from the command you run to what reaches users:
 
-| Stage | Command | Result |
-|---|---|---|
-| Development build | `pnpm android` | Debug app with live reload, on a device or emulator |
-| Release APK | `pnpm build:apk` | `dist/NoSpyFi-<version>.apk`, signed with the release key if configured |
-| Install on a phone | `pnpm install:apk` | That APK installed over USB |
-| Release | `pnpm release` | Version bumped, APK built and tested, commit and tag pushed, GitHub Release published with the APK, which users and Obtainium see |
-| Publish again | `pnpm release:publish vX.Y.Z` | Only the GitHub Release step, if it failed during `pnpm release` |
+| Stage              | Command                       | Result                                                                                                                            |
+| ------------------ | ----------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| Development build  | `pnpm android`                | Debug app with live reload, on a device or emulator                                                                               |
+| Release APK        | `pnpm build:apk`              | `dist/NoSpyFi-<version>.apk`, signed with the release key if configured                                                           |
+| Install on a phone | `pnpm install:apk`            | That APK installed over USB                                                                                                       |
+| Release            | `pnpm release`                | Version bumped, APK built and tested, commit and tag pushed, GitHub Release published with the APK, which users and Obtainium see |
+| Publish again      | `pnpm release:publish vX.Y.Z` | Only the GitHub Release step, if it failed during `pnpm release`                                                                  |
 
 ## 1. Prerequisites
 
@@ -27,15 +27,15 @@ Each stage, from the command you run to what reaches users:
 
 `android/` is **generated** and git-ignored (Expo's Continuous Native Generation). Never edit it by hand: every release build regenerates it from scratch. Native behaviour is configured in `app.json` and its config plugins:
 
-| Setting in `app.json` | Effect |
-|---|---|
-| `android.package` = `app.webradio.player` | The app's identity. **Never change it**: a new package is a different app, and users would lose their favourites. |
-| `version` / `android.versionCode` | See [section 5](#5-versioning). |
-| `android.allowBackup: false` | App data stays off Google's cloud backup ([ADR 0004](adr/0004-network-limited-to-directory-and-stations.md)). |
-| `android.blockedPermissions` | Removes storage, overlay and vibrate permissions that libraries would otherwise add. |
-| `expo-build-properties` → `usesCleartextTraffic` | Allows `http://` streams ([ADR 0001](adr/0001-global-cleartext-http.md)). |
-| `expo-audio` → `enableBackgroundPlayback` | Foreground media service for playback with the screen off. |
-| `expo-navigation-bar` → `hidden` | Android navigation bar hidden from launch (car head units). |
+| Setting in `app.json`                            | Effect                                                                                                            |
+| ------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------- |
+| `android.package` = `app.webradio.player`        | The app's identity. **Never change it**: a new package is a different app, and users would lose their favourites. |
+| `version` / `android.versionCode`                | See [section 5](#5-versioning).                                                                                   |
+| `android.allowBackup: false`                     | App data stays off Google's cloud backup ([ADR 0004](adr/0004-network-limited-to-directory-and-stations.md)).     |
+| `android.blockedPermissions`                     | Removes storage, overlay and vibrate permissions that libraries would otherwise add.                              |
+| `expo-build-properties` → `usesCleartextTraffic` | Allows `http://` streams ([ADR 0001](adr/0001-global-cleartext-http.md)).                                         |
+| `expo-audio` → `enableBackgroundPlayback`        | Foreground media service for playback with the screen off.                                                        |
+| `expo-navigation-bar` → `hidden`                 | Android navigation bar hidden from launch (car head units).                                                       |
 
 ### The expo-audio patch
 
@@ -97,6 +97,7 @@ NOSPYFI_KEYSTORE=../WebRadioApkKey/nospyfi-release.keystore   # relative to the 
 ```
 
 How these values are handled:
+
 - **The scripts read the file themselves.** Both `build-apk.sh` and `release.sh` load it with `set -a`, so its values reach every step of the release.
 - **The keystore path never ends up in the app.** Expo also reads `.env.local`, but only `EXPO_PUBLIC_*` variables are bundled into the app.
 - **The password is passed as an environment reference** (`env:`), so it never appears in the process list.
@@ -114,6 +115,7 @@ pnpm install:apk
 [`scripts/install-apk.sh`](../scripts/install-apk.sh) installs `dist/NoSpyFi-<version>.apk` with `adb install -r`, which keeps the app's data. It requires **exactly one** authorised USB device; emulators are ignored. For an emulator, run `adb -s emulator-5554 install -r dist/NoSpyFi-<version>.apk` yourself.
 
 Two messages are normal or expected:
+
 - **"Incremental installation not allowed"**, followed by **"Performing Streamed Install … Success"**: adb tries a faster install method first, the phone refuses it, and the fallback works. Harmless.
 - **`INSTALL_FAILED_UPDATE_INCOMPATIBLE`**: the installed app was signed with a different key, typically a debug build being replaced by a release build. The script prints the `adb uninstall` command. Uninstalling deletes that phone's favourites and listening time, so the script never does it on its own.
 
@@ -121,10 +123,10 @@ Two messages are normal or expected:
 
 There are two numbers, both in `app.json`:
 
-| Field | Purpose | Rule |
-|---|---|---|
-| `expo.version` (e.g. `0.0.2`) | Shown to users. Names the APK and the git tag (`v0.0.2`). | Semantic versioning: patch for fixes, minor for features, major for breaking changes. |
-| `expo.android.versionCode` (e.g. `2`) | What Android compares. | **+1 on every release.** Android refuses an update whose code isn't higher. |
+| Field                                 | Purpose                                                   | Rule                                                                                  |
+| ------------------------------------- | --------------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| `expo.version` (e.g. `0.0.2`)         | Shown to users. Names the APK and the git tag (`v0.0.2`). | Semantic versioning: patch for fixes, minor for features, major for breaking changes. |
+| `expo.android.versionCode` (e.g. `2`) | What Android compares.                                    | **+1 on every release.** Android refuses an update whose code isn't higher.           |
 
 `package.json` → `version` mirrors `expo.version`. Nothing reads it; it's kept in step so the repo doesn't show two numbers. `pnpm release` updates all three, so don't edit them by hand.
 
@@ -179,15 +181,15 @@ The repository must stay **public**, or the README's Download link, Obtainium an
 `gh` uses a fine-grained personal access token that can only touch this repository. Create it once a year:
 
 1. GitHub → **Settings → Developer settings → Fine-grained tokens → Generate new token**.
-2. **Expiration:** 1 year. **Repository access:** only `cuginoAle/web-radio`. **Permissions:** Contents → *Read and write* (Metadata → *Read* is added automatically).
-3. Log `gh` in with it; the token is kept in the macOS Keychain, not in `.env.local`:
+2. **Expiration:** 1 year. **Repository access:** only `cuginoAle/web-radio`. **Permissions:** Contents → _Read and write_ (Metadata → _Read_ is added automatically).
+3. Copy the token, then log `gh` in with it. `--with-token` reads standard input, so the token never appears in your shell history; `gh` keeps it in the macOS Keychain, not in `.env.local`:
    ```sh
-   gh auth login --with-token   # paste the token, then Ctrl-D
+   pbpaste | gh auth login --with-token
    gh auth status               # check
    ```
 4. Write the new expiry date below.
 
-**Expires:** YYYY-MM-DD. Renew it a month before.
+**Expires:** 2027-11-17. Renew it a month before.
 
 While `gh` is logged in with this token, it can't touch your other repositories.
 
@@ -200,17 +202,17 @@ While `gh` is logged in with this token, it can't touch your other repositories.
 
 ## 9. Troubleshooting
 
-| Symptom | Cause and fix |
-|---|---|
-| `Set NOSPYFI_KEYSTORE (in .env.local) …` | `.env.local` is missing, or doesn't set `NOSPYFI_KEYSTORE`. |
-| `The working tree is not clean` | Commit or stash first. Untracked files count too. |
-| `main is not level with origin/main` | Pull, or push your commits, then retry. |
-| `Tag vX.Y.Z already exists` | That version was already released: pick another bump or version. |
-| `gh is missing or not logged in` | Install `gh`, or the token expired: create a new one ([section 7](#the-github-token)). A `401` or `403` from `gh` during publishing has the same cause; rerun `pnpm release:publish vX.Y.Z` after logging in again. |
-| `… is not signed with the release key` or `… has versionName …, not …` | `dist/` holds a different build of that version. Rebuild it from the tag as the message says, then rerun `pnpm release:publish vX.Y.Z`. |
-| `INSTALL_FAILED_UPDATE_INCOMPATIBLE` | The installed app has a different signature: uninstall once (this deletes its data). |
-| `INSTALL_FAILED_INSUFFICIENT_STORAGE` | The device is full. On a phone, free space. On the emulator, uninstalling the app frees little if the old build was small; Android also keeps a low-storage reserve free (500 MB by default), so a nearly full `/data` rejects the 84 MB debug APK. What fixed it here: wipe the AVD (`emulator -avd <name> -wipe-data`), which deletes every app on it. |
-| Install rejected as "not newer" | `versionCode` didn't increase: always release through `pnpm release`. |
-| The song title never shows | `buildFromSource` for expo-audio was removed, so the patch isn't compiled in. |
-| GPG error during the commit or tag | Run `pnpm release` in an interactive terminal so the passphrase prompt can appear. |
-| Build breaks with odd Gradle errors | Another build may be running in the same `android/` folder: wait for it to finish, then rebuild. |
+| Symptom                                                                | Cause and fix                                                                                                                                                                                                                                                                                                                                            |
+| ---------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Set NOSPYFI_KEYSTORE (in .env.local) …`                               | `.env.local` is missing, or doesn't set `NOSPYFI_KEYSTORE`.                                                                                                                                                                                                                                                                                              |
+| `The working tree is not clean`                                        | Commit or stash first. Untracked files count too.                                                                                                                                                                                                                                                                                                        |
+| `main is not level with origin/main`                                   | Pull, or push your commits, then retry.                                                                                                                                                                                                                                                                                                                  |
+| `Tag vX.Y.Z already exists`                                            | That version was already released: pick another bump or version.                                                                                                                                                                                                                                                                                         |
+| `gh is missing or not logged in`                                       | Install `gh`, or the token expired: create a new one ([section 7](#the-github-token)). A `401` or `403` from `gh` during publishing has the same cause; rerun `pnpm release:publish vX.Y.Z` after logging in again.                                                                                                                                      |
+| `… is not signed with the release key` or `… has versionName …, not …` | `dist/` holds a different build of that version. Rebuild it from the tag as the message says, then rerun `pnpm release:publish vX.Y.Z`.                                                                                                                                                                                                                  |
+| `INSTALL_FAILED_UPDATE_INCOMPATIBLE`                                   | The installed app has a different signature: uninstall once (this deletes its data).                                                                                                                                                                                                                                                                     |
+| `INSTALL_FAILED_INSUFFICIENT_STORAGE`                                  | The device is full. On a phone, free space. On the emulator, uninstalling the app frees little if the old build was small; Android also keeps a low-storage reserve free (500 MB by default), so a nearly full `/data` rejects the 84 MB debug APK. What fixed it here: wipe the AVD (`emulator -avd <name> -wipe-data`), which deletes every app on it. |
+| Install rejected as "not newer"                                        | `versionCode` didn't increase: always release through `pnpm release`.                                                                                                                                                                                                                                                                                    |
+| The song title never shows                                             | `buildFromSource` for expo-audio was removed, so the patch isn't compiled in.                                                                                                                                                                                                                                                                            |
+| GPG error during the commit or tag                                     | Run `pnpm release` in an interactive terminal so the passphrase prompt can appear.                                                                                                                                                                                                                                                                       |
+| Build breaks with odd Gradle errors                                    | Another build may be running in the same `android/` folder: wait for it to finish, then rebuild.                                                                                                                                                                                                                                                         |
