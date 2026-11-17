@@ -14,6 +14,7 @@ import { loadCatalogState } from '@/services/catalog-sync/loadCatalogState';
 import { createRadioBrowserClient } from '@/services/radio-browser/createRadioBrowserClient';
 import { setRuntime } from '@/services/runtime';
 import { createUpdateCheck } from '@/services/update-check/createUpdateCheck';
+import { createInstaller } from '@/services/update-install/createInstaller';
 import { globalStore } from '@/state/global-state';
 
 /** Opens the local catalog and wires the single audio session. No network is needed to get past this. */
@@ -45,6 +46,9 @@ export async function bootstrap() {
     playsInSilentMode: true,
   });
 
-  setRuntime({ db, audio, sync: createCatalogSync({ db, client }), updates });
+  const installer = createInstaller();
+  void installer.discard(); // after an update installs, the 56 MB APK is dead weight (discard never throws)
+
+  setRuntime({ db, audio, sync: createCatalogSync({ db, client }), updates, installer });
   await loadCatalogState();
 }

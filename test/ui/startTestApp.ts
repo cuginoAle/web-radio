@@ -10,6 +10,7 @@ import { globalStore } from '@/state/global-state';
 import { FakeAudioPlayer } from '@test/fakes/fakeAudioPlayer';
 import { createFakeDirectory } from '@test/fakes/fakeDirectory';
 import { createFakeFetch } from '@test/fakes/fakeFetch';
+import { createFakeInstaller } from '@test/fakes/fakeInstaller';
 import type { RawStation } from '@test/fixtures/radioBrowserStation';
 import { createNodeDb } from '@test/sqlite/nodeDb';
 
@@ -38,8 +39,9 @@ export async function startTestApp(stations: RawStation[] = []) {
     installedVersion: '1.2.3',
     now: () => clock.now,
   });
-  setRuntime({ db, audio, sync, updates });
+  const device = createFakeInstaller();
+  setRuntime({ db, audio, sync, updates, installer: device.installer });
   if (stations.length > 0) await sync.refresh();
   await loadCatalogState();
-  return { db, directory, sync, player, audio, github, clock, state: () => globalStore.getState() };
+  return { db, directory, sync, player, audio, github, clock, device, state: () => globalStore.getState() };
 }

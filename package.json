@@ -11,6 +11,7 @@
     "expo-audio": "~58.0.11",
     "expo-build-properties": "~58.0.12",
     "expo-constants": "~58.0.15",
+    "expo-file-system": "~58.0.13",
     "expo-font": "~58.0.11",
     "expo-image": "~58.0.18",
     "expo-linking": "~58.0.16",
@@ -66,6 +67,7 @@
   },
   "jest": {
     "preset": "jest-expo",
+    "modulePathIgnorePatterns": ["<rootDir>/.claude/"],
     "moduleNameMapper": {
       "^@/assets/(.*)$": "<rootDir>/assets/$1",
       "^react-native-reanimated$": "<rootDir>/test/fakes/fakeReanimated.ts"

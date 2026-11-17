@@ -4,6 +4,7 @@ import type { FavoriteItem } from '@/db/queries/favorites';
 import { useTopFavorites } from '@/hooks/favorites/useTopFavorites';
 import { openTag } from '@/hooks/stations/useOpenTag';
 import { useTags } from '@/hooks/stations/useTags';
+import { useInstallUpdate } from '@/hooks/updates/useInstallUpdate';
 import { useUpdateNotice } from '@/hooks/updates/useUpdateNotice';
 import { DiscoverHeader } from '@/screens/discover/DiscoverHeader';
 import { styles } from '@/screens/discover/styles';
@@ -16,6 +17,7 @@ export function DiscoverScreen() {
   const tags = useTags(TOP_TAGS);
   const topFavorites = useTopFavorites();
   const { notice, snooze } = useUpdateNotice();
+  const install = useInstallUpdate(notice);
 
   // Previous / next move among the pills (GLOSSARY: Source list).
   const play = (station: FavoriteItem) => void playFromList(station, async () => topFavorites.map((f) => f.uuid));
@@ -25,8 +27,9 @@ export function DiscoverScreen() {
       {notice ? (
         <UpdateNotice
           version={notice.version}
-          // shortcut: Install does nothing yet, wired by the "Download and install" issue
-          onInstall={() => undefined}
+          status={install.status}
+          percent={install.percent}
+          onInstall={install.install}
           onDismiss={snooze}
         />
       ) : null}

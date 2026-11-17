@@ -10,7 +10,8 @@ export type MetadataKey =
   | 'update_last_check_at'
   | 'update_version'
   | 'update_apk_url'
-  | 'update_snoozed_until';
+  | 'update_snoozed_until'
+  | 'update_install_explained';
 
 export async function getMetadata(db: Db, key: MetadataKey) {
   const row = await db.getFirstAsync<{ value: string | null }>('SELECT value FROM app_metadata WHERE key = ?', [key]);

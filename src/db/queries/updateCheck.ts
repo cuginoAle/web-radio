@@ -28,6 +28,13 @@ export async function getStoredUpdate(db: Db): Promise<AvailableUpdate | null> {
   return version && url ? { version, url } : null;
 }
 
+/** Whether the user has already tapped Continue on the "Allow installing updates" explainer. */
+export async function isInstallExplained(db: Db) {
+  return (await getMetadata(db, 'update_install_explained')) === '1';
+}
+
+export const setInstallExplained = (db: Db) => put(db, 'update_install_explained', '1');
+
 export async function storeUpdate(db: Db, update: AvailableUpdate) {
   await put(db, 'update_version', update.version);
   await put(db, 'update_apk_url', update.url);
