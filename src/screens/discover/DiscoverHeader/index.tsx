@@ -22,7 +22,7 @@ export function DiscoverHeader({ tags, onOpenTag, topFavorites, onPlayFavorite }
     <View style={styles.root}>
       <View style={styles.brandRow}>
         <Logo />
-        <IconButton icon="information-circle-outline" label="Station catalogue" onPress={() => router.push('/catalog')} />
+        <IconButton icon="information-circle-outline" label="About NoSpyFi" onPress={() => router.push('/catalog')} />
       </View>
       {topFavorites.length > 0 ? (
         <>

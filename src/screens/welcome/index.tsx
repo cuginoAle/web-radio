@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { ActivityIndicator, Pressable, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -5,11 +6,32 @@ import { EmptyState } from '@/components/EmptyState';
 import { ScreenTitle } from '@/components/ScreenTitle';
 import { formatStationCount } from '@/helpers/format/formatStationCount';
 import { useCatalogRefresh } from '@/hooks/catalog/useCatalogRefresh';
+import { useUpdateCheckSetting } from '@/hooks/updates/useUpdateCheckSetting';
+import { UpdateCheckQuestion } from '@/screens/welcome/UpdateCheckQuestion';
 import { styles } from '@/screens/welcome/styles';
 import { colors } from '@/theme/tokens';
 
 export function WelcomeScreen() {
   const { sync, start, cancel } = useCatalogRefresh();
+  const { update } = useUpdateCheckSetting();
+  const [answered, setAnswered] = useState(false);
+
+  // Only first-time users get here (no catalogue yet), so the question is never shown to current installs.
+  if (!answered && sync.phase === 'idle') {
+    return (
+      <SafeAreaView style={styles.root}>
+        <View style={styles.content}>
+          <ScreenTitle title="Your frequency." subtitle="The right sound, right now." />
+          <UpdateCheckQuestion
+            onAnswer={(enabled) => {
+              void update(enabled);
+              setAnswered(true);
+            }}
+          />
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   if (sync.phase === 'failed' || sync.phase === 'cancelled') {
     return (

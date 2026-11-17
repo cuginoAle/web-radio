@@ -6,6 +6,7 @@ import { ModalHeader } from '@/components/ModalHeader';
 import { formatStationCount } from '@/helpers/format/formatStationCount';
 import { formatDateTime } from '@/helpers/format/formatDateTime';
 import { useCatalogRefresh } from '@/hooks/catalog/useCatalogRefresh';
+import { AppUpdates } from '@/screens/catalog/AppUpdates';
 import { styles } from '@/screens/catalog/styles';
 import { globalStore, useGlobalState } from '@/state/global-state';
 import { colors } from '@/theme/tokens';
@@ -23,7 +24,7 @@ export function CatalogScreen() {
 
   return (
     <SafeAreaView style={styles.root}>
-      <ModalHeader title="Station catalogue" />
+      <ModalHeader title="About NoSpyFi" />
       <View style={styles.content}>
         <Text style={styles.count}>{`${formatStationCount(catalog.stationCount)} stored on this device`}</Text>
         {catalog.lastSuccessAt ? (
@@ -47,6 +48,7 @@ export function CatalogScreen() {
             {running ? 'Cancel' : sync.phase === 'failed' ? 'Retry' : 'Refresh catalogue'}
           </Text>
         </Pressable>
+        <AppUpdates />
       </View>
     </SafeAreaView>
   );

@@ -4,6 +4,7 @@ import { Dimensions } from 'react-native';
 import { getStation } from '@/db/queries/stations';
 import { addFavorite } from '@/db/queries/favorites';
 import { addListeningTime } from '@/db/queries/listeningTime';
+import { isUpdateCheckEnabled } from '@/db/queries/updateCheck';
 import { MiniPlayer } from '@/components/MiniPlayer';
 import { toSnapshot } from '@/helpers/player/toSnapshot';
 import { CatalogScreen } from '@/screens/catalog';
@@ -21,16 +22,37 @@ import { rawStation } from '@test/fixtures/radioBrowserStation';
 import { startTestApp } from '@test/ui/startTestApp';
 
 jest.mock('expo-router', () => jest.requireActual('@test/fakes/fakeRouter'));
+jest.mock('expo-constants', () => ({ __esModule: true, default: { expoConfig: { version: '1.2.3' } } }));
 
 const radio = (uuid: string, name: string, tags = 'jazz') => rawStation({ stationuuid: uuid, name, tags, country: 'Italy' });
 
 beforeEach(() => jest.clearAllMocks());
 
+const NO_ANSWER = 'No, I use Obtainium or update by hand';
+const answerUpdateQuestion = (answer: string) => fireEvent.press(screen.getByRole('button', { name: answer }));
+
 describe('Welcome (no local catalog)', () => {
+  it.each([
+    ['Yes', true],
+    [NO_ANSWER, false],
+  ])('asks about update checks once; "%s" is stored', async (answer, expected) => {
+    const { db } = await startTestApp();
+    await render(<WelcomeScreen />);
+    expect(screen.getByText('Check for new versions when I open NoSpyFi? It contacts GitHub.')).toBeOnTheScreen();
+    expect(screen.queryByRole('button', { name: 'Download catalogue' })).toBeNull();
+
+    await answerUpdateQuestion(answer);
+
+    expect(await screen.findByRole('button', { name: 'Download catalogue' })).toBeOnTheScreen();
+    expect(screen.queryByText(/contacts GitHub/)).toBeNull();
+    expect(await isUpdateCheckEnabled(db)).toBe(expected);
+  });
+
   it('asks before downloading and explains that Internet is needed', async () => {
     const { directory } = await startTestApp();
     await render(<WelcomeScreen />);
-    expect(screen.getByRole('button', { name: 'Download catalogue' })).toBeOnTheScreen();
+    await answerUpdateQuestion(NO_ANSWER);
+    expect(await screen.findByRole('button', { name: 'Download catalogue' })).toBeOnTheScreen();
     expect(screen.getByText(/internet connection/)).toBeOnTheScreen();
     expect(directory.pages).toEqual([]);
   });
@@ -39,8 +61,9 @@ describe('Welcome (no local catalog)', () => {
     const { directory, state } = await startTestApp();
     directory.setMirror('mirror', rawStations(3));
     await render(<WelcomeScreen />);
+    await answerUpdateQuestion(NO_ANSWER);
 
-    await fireEvent.press(screen.getByRole('button', { name: 'Download catalogue' }));
+    await fireEvent.press(await screen.findByRole('button', { name: 'Download catalogue' }));
 
     await waitFor(() => expect(state().catalog.stationCount).toBe(3));
   });
@@ -52,7 +75,8 @@ describe('Welcome (no local catalog)', () => {
       offset >= 1000 ? new Promise((_, reject) => signal?.addEventListener('abort', () => reject(new Error('x')))) : undefined,
     );
     await render(<WelcomeScreen />);
-    await fireEvent.press(screen.getByRole('button', { name: 'Download catalogue' }));
+    await answerUpdateQuestion(NO_ANSWER);
+    await fireEvent.press(await screen.findByRole('button', { name: 'Download catalogue' }));
 
     expect(await screen.findByText('1000 stations received')).toBeOnTheScreen();
     await fireEvent.press(screen.getByRole('button', { name: 'Cancel' }));
@@ -65,7 +89,8 @@ describe('Welcome (no local catalog)', () => {
     const { directory } = await startTestApp();
     directory.setMirror('mirror', new TypeError('offline'));
     await render(<WelcomeScreen />);
-    await fireEvent.press(screen.getByRole('button', { name: 'Download catalogue' }));
+    await answerUpdateQuestion(NO_ANSWER);
+    await fireEvent.press(await screen.findByRole('button', { name: 'Download catalogue' }));
     expect(await screen.findByText('Catalogue unavailable')).toBeOnTheScreen();
     expect(screen.getByRole('button', { name: 'Retry' })).toBeOnTheScreen();
   });
@@ -147,7 +172,7 @@ describe('Discover', () => {
     await render(<DiscoverScreen />);
     await fireEvent.press(await screen.findByRole('button', { name: 'See all tags' }));
     expect(router.push).toHaveBeenCalledWith('/tags');
-    await fireEvent.press(screen.getByRole('button', { name: 'Station catalogue' }));
+    await fireEvent.press(screen.getByRole('button', { name: 'About NoSpyFi' }));
     expect(router.push).toHaveBeenCalledWith('/catalog');
   });
 });
@@ -235,6 +260,30 @@ describe('Tags', () => {
     await fireEvent.press(await screen.findByRole('button', { name: 'Blues, 1 station' }));
     expect(state().selectedTag).toEqual({ key: 'blues', label: 'Blues' });
     expect(router.navigate).toHaveBeenCalledWith('/search');
+  });
+});
+
+describe('About NoSpyFi', () => {
+  it('titles the modal and shows the installed version apart from the catalogue', async () => {
+    await startTestApp(rawStations(2));
+    await render(<CatalogScreen />);
+    expect(screen.getByRole('header', { name: 'About NoSpyFi' })).toBeOnTheScreen();
+    expect(screen.getByRole('header', { name: 'App updates' })).toBeOnTheScreen();
+    expect(screen.getByText('Version 1.2.3')).toBeOnTheScreen();
+  });
+
+  it('has the update check off by default and persists the switch', async () => {
+    const { db } = await startTestApp(rawStations(2));
+    await render(<CatalogScreen />);
+    const toggle = await screen.findByRole('switch', { name: 'Check for updates' });
+    expect(toggle).toHaveProp('value', false);
+
+    await fireEvent(toggle, 'valueChange', true);
+    await waitFor(async () => expect(await isUpdateCheckEnabled(db)).toBe(true));
+    expect(screen.getByRole('switch', { name: 'Check for updates' })).toHaveProp('value', true);
+
+    await fireEvent(screen.getByRole('switch', { name: 'Check for updates' }), 'valueChange', false);
+    await waitFor(async () => expect(await isUpdateCheckEnabled(db)).toBe(false));
   });
 });
 
