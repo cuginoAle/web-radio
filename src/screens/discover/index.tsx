@@ -4,8 +4,10 @@ import type { FavoriteItem } from '@/db/queries/favorites';
 import { useTopFavorites } from '@/hooks/favorites/useTopFavorites';
 import { openTag } from '@/hooks/stations/useOpenTag';
 import { useTags } from '@/hooks/stations/useTags';
+import { useUpdateNotice } from '@/hooks/updates/useUpdateNotice';
 import { DiscoverHeader } from '@/screens/discover/DiscoverHeader';
 import { styles } from '@/screens/discover/styles';
+import { UpdateNotice } from '@/screens/discover/UpdateNotice';
 import { playFromList } from '@/services/audio/playFromList';
 
 const TOP_TAGS = 24;
@@ -13,12 +15,21 @@ const TOP_TAGS = 24;
 export function DiscoverScreen() {
   const tags = useTags(TOP_TAGS);
   const topFavorites = useTopFavorites();
+  const { notice, snooze } = useUpdateNotice();
 
   // Previous / next move among the pills (GLOSSARY: Source list).
   const play = (station: FavoriteItem) => void playFromList(station, async () => topFavorites.map((f) => f.uuid));
 
   return (
     <ScrollView contentContainerStyle={styles.content}>
+      {notice ? (
+        <UpdateNotice
+          version={notice.version}
+          // shortcut: Install does nothing yet, wired by the "Download and install" issue
+          onInstall={() => undefined}
+          onDismiss={snooze}
+        />
+      ) : null}
       <DiscoverHeader tags={tags} onOpenTag={openTag} topFavorites={topFavorites} onPlayFavorite={play} />
     </ScrollView>
   );

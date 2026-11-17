@@ -1,6 +1,16 @@
 import type { Db } from '@/db/types';
 
-export type MetadataKey = 'active_generation' | 'active_count' | 'last_success_at' | 'last_mirror' | 'favorites_seeded' | 'update_check_enabled';
+export type MetadataKey =
+  | 'active_generation'
+  | 'active_count'
+  | 'last_success_at'
+  | 'last_mirror'
+  | 'favorites_seeded'
+  | 'update_check_enabled'
+  | 'update_last_check_at'
+  | 'update_version'
+  | 'update_apk_url'
+  | 'update_snoozed_until';
 
 export async function getMetadata(db: Db, key: MetadataKey) {
   const row = await db.getFirstAsync<{ value: string | null }>('SELECT value FROM app_metadata WHERE key = ?', [key]);

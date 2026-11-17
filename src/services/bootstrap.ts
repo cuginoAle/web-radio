@@ -13,6 +13,7 @@ import { createCatalogSync } from '@/services/catalog-sync/createCatalogSync';
 import { loadCatalogState } from '@/services/catalog-sync/loadCatalogState';
 import { createRadioBrowserClient } from '@/services/radio-browser/createRadioBrowserClient';
 import { setRuntime } from '@/services/runtime';
+import { createUpdateCheck } from '@/services/update-check/createUpdateCheck';
 import { globalStore } from '@/state/global-state';
 
 /** Opens the local catalog and wires the single audio session. No network is needed to get past this. */
@@ -21,9 +22,13 @@ export async function bootstrap() {
   await prepareDatabase(db);
   await seedDefaultFavorites(db);
 
-  const client = createRadioBrowserClient({
+  const userAgent = `NoSpyFi/${Constants.expoConfig?.version ?? '1.0.0'}`;
+  const client = createRadioBrowserClient({ fetch: (url, init) => fetch(url, init), userAgent });
+  const updates = createUpdateCheck({
+    db,
     fetch: (url, init) => fetch(url, init),
-    userAgent: `NoSpyFi/${Constants.expoConfig?.version ?? '1.0.0'}`,
+    userAgent,
+    installedVersion: Constants.expoConfig?.version ?? 'unknown', // unparseable: never "newer"
   });
   const audio = createAudioSession({
     player: createAudioPlayer(null),
@@ -40,6 +45,6 @@ export async function bootstrap() {
     playsInSilentMode: true,
   });
 
-  setRuntime({ db, audio, sync: createCatalogSync({ db, client }) });
+  setRuntime({ db, audio, sync: createCatalogSync({ db, client }), updates });
   await loadCatalogState();
 }
