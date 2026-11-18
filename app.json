@@ -2,7 +2,7 @@
   "expo": {
     "name": "NoSpyFi",
     "slug": "web-radio",
-    "version": "0.0.7",
+    "version": "0.0.8",
     "orientation": "default",
     "icon": "./assets/images/icon.png",
     "scheme": "webradio",
@@ -11,7 +11,7 @@
     "platforms": ["android"],
     "android": {
       "package": "app.webradio.player",
-      "versionCode": 7,
+      "versionCode": 8,
       "allowBackup": false,
       "adaptiveIcon": {
         "backgroundColor": "#252527",
