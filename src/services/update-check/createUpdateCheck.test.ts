@@ -134,3 +134,38 @@ describe('current', () => {
     expect(await updates.current()).toEqual({ version: '0.0.5', url: URL });
   });
 });
+
+describe('checkNow (the Check now button)', () => {
+  it('asks GitHub even while the setting is off, and returns the newer release', async () => {
+    const { updates, requests } = await setup({ enabled: false, replies: [latest()] });
+
+    expect(await updates.checkNow()).toEqual({ version: '0.0.5', url: URL });
+    expect(requests).toHaveLength(1);
+  });
+
+  it('skips the once-a-day limit and counts as the latest check', async () => {
+    const { updates, clock, requests } = await setup({ replies: [latest(), latest()] });
+    await updates.check();
+
+    clock.now += 60_000;
+    await updates.checkNow();
+    expect(requests).toHaveLength(2);
+
+    clock.now += DAY - 1;
+    await updates.check(); // a day after the first check, but not after Check now
+    expect(requests).toHaveLength(2);
+  });
+
+  it('returns nothing when the installed version is the latest', async () => {
+    const { make, fetch } = await setup({ replies: [latest()] });
+    expect(await make(fetch, '0.0.5').checkNow()).toBeNull();
+  });
+
+  it.each([
+    ['offline', new Error('Network request failed')],
+    ['rate limited', json({ message: 'rate limit' }, 403)],
+  ])('fails visibly when %s', async (_label, reply) => {
+    const { updates } = await setup({ replies: [reply] });
+    await expect(updates.checkNow()).rejects.toThrow();
+  });
+});

@@ -57,7 +57,7 @@ Your favourites, your listening time and your copy of the catalogue live in a da
 | You play a station, or open the app after listening to one (it starts the last station again) | That station's streaming server | Your IP address and which station you're listening to, as with any radio player |
 | A station logo is shown | Whoever hosts that station's logo | Your IP address |
 | The station or logo uses plain HTTP (about a third do) | Anyone on the network path (Wi-Fi owner, ISP) | Which station you're listening to |
-| Once a day when you open the app, if you turned on *Check for updates*, and when you tap *Install* | GitHub (Microsoft), over HTTPS | Your IP address, that a NoSpyFi app checked for or downloaded a new version, and which NoSpyFi version you have |
+| Once a day when you open the app, if you turned on *Check for updates*; when you tap *Check now*; and when you tap *Install* | GitHub (Microsoft), over HTTPS | Your IP address, that a NoSpyFi app checked for or downloaded a new version, and which NoSpyFi version you have |
 
 That's all. One caveat: each stream address is exactly what the broadcaster registered with the directory, and a few include the broadcaster's own tracking parameters. NoSpyFi passes them on unchanged, because removing them can break the stream.
 

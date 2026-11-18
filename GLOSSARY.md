@@ -105,9 +105,9 @@ Where a user installs releases from and receives app updates through.
 _Avoid_: store, source, repo, market
 
 **Update notice**:
-How a user learns that a newer release exists without going to look for it: a system notification from their channel's client, or a notice when they next open the app.
+How a user learns that a newer release exists: a system notification from their channel's client, or a notice in the app, shown when they open it or after they tap *Check now*.
 _Avoid_: update alert, update prompt
 
 **Update check**:
-The app asking whether a newer release exists, at most once a day and only if the user turned it on.
-_Avoid_: auto-update, updater, update server
+The app asking whether a newer release exists, either by itself at most once a day if the user turned it on, or right away when the user taps *Check now*.
+_Avoid_: auto-update, updater, update server, force check

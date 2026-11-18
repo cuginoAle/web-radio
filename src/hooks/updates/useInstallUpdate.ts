@@ -1,22 +1,25 @@
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useState } from 'react';
 
 import { isInstallExplained, setInstallExplained } from '@/db/queries/updateCheck';
 import { askInstallExplainer } from '@/helpers/updates/askInstallExplainer';
 import type { AvailableUpdate } from '@/helpers/updates/pickUpdate';
 import { getRuntime } from '@/services/runtime';
+import type { Installer } from '@/services/update-install/types';
 
 export type InstallStatus = 'idle' | 'downloading' | 'failed';
+
+// The installer overwrites one cache file, so it takes one explainer or download at a time, from Discover or About.
+let busyInstaller: Installer | null = null;
 
 /** Install / Retry for the Update notice: first-time explainer, download with progress, hand-off to Android's installer. */
 export function useInstallUpdate(update: AvailableUpdate | null) {
   const [status, setStatus] = useState<InstallStatus>('idle');
   const [percent, setPercent] = useState(0);
-  const busy = useRef(false); // a second tap must not stack a second explainer or download
 
   const install = useCallback(async () => {
-    if (!update || busy.current) return;
-    busy.current = true;
     const { db, installer } = getRuntime();
+    if (!update || busyInstaller === installer) return;
+    busyInstaller = installer;
     try {
       if (!(await isInstallExplained(db))) {
         if (!(await askInstallExplainer())) return;
@@ -32,7 +35,7 @@ export function useInstallUpdate(update: AvailableUpdate | null) {
         setStatus('failed');
       }
     } finally {
-      busy.current = false;
+      busyInstaller = null;
     }
   }, [update]);
 

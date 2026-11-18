@@ -33,25 +33,34 @@ export function createUpdateCheck({ db, fetch, userAgent, installedVersion, now 
         headers: { Accept: 'application/vnd.github+json', 'User-Agent': userAgent },
         signal: controller.signal,
       });
-      if (!response.ok) return null;
+      if (!response.ok) throw new Error(`GitHub answered ${response.status}`);
       return pickUpdate(await response.json(), installedVersion);
     } finally {
       clearTimeout(timer);
     }
   };
 
+  /** Asks GitHub right away; the attempt is recorded even if it fails. Resolves to the newer release, if any. */
+  const checkNow = async () => {
+    await setLastCheckAt(db, now());
+    const update = await request();
+    if (update) await storeUpdate(db, update);
+    return update;
+  };
+
   return {
-    /** Asks GitHub at most once a day, only when the setting is on. The attempt is recorded even if it fails. */
+    /** Asks GitHub at most once a day, only when the setting is on. */
     async check() {
       try {
         if (!(await isUpdateCheckEnabled(db)) || now() - (await getLastCheckAt(db)) < DAY_MS) return;
-        await setLastCheckAt(db, now());
-        const update = await request();
-        if (update) await storeUpdate(db, update);
+        await checkNow();
       } catch {
         // Silent by design: no error UI, the next daily check tries again.
       }
     },
+
+    /** The Check now button: ignores the setting and the daily limit, and rejects when GitHub can't be asked. */
+    checkNow,
 
     /** The update to tell the user about: stored, newer than installed, setting on and not snoozed. */
     async current() {

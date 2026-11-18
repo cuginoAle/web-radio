@@ -8,7 +8,7 @@ import { useInstallUpdate } from '@/hooks/updates/useInstallUpdate';
 import { useUpdateNotice } from '@/hooks/updates/useUpdateNotice';
 import { DiscoverHeader } from '@/screens/discover/DiscoverHeader';
 import { styles } from '@/screens/discover/styles';
-import { UpdateNotice } from '@/screens/discover/UpdateNotice';
+import { UpdateNotice } from '@/components/UpdateNotice';
 import { playFromList } from '@/services/audio/playFromList';
 
 const TOP_TAGS = 24;

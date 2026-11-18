@@ -198,7 +198,7 @@ While `gh` is logged in with this token, it can't touch your other repositories.
 How users get releases is decided in [ADR 0006](adr/0006-releases-through-github-obtainium-and-an-update-check.md).
 
 - **Obtainium** users add the repository URL once. Obtainium watches GitHub Releases and installs new APKs. This is the README's recommended path.
-- **The update check** is for everyone else (Android 7, or no Obtainium). It is off unless the user turns it on (welcome screen, or *About NoSpyFi*). Then, at most once a day when the app opens, it asks GitHub's latest-release API and shows a notice on the home screen; *Install* downloads the APK and hands it to Android's installer. Code: [`src/services/update-check/`](../src/services/update-check/) and [`src/services/update-install/`](../src/services/update-install/).
+- **The update check** is for everyone else (Android 7, or no Obtainium). It is off unless the user turns it on (welcome screen, or *About NoSpyFi*). Then, at most once a day when the app opens, it asks GitHub's latest-release API and shows a notice on the home screen. *Check now* in *About NoSpyFi* asks right away, even with the setting off, and shows the answer there. *Install* downloads the APK and hands it to Android's installer. Code: [`src/services/update-check/`](../src/services/update-check/) and [`src/services/update-install/`](../src/services/update-install/).
 - **First install without Obtainium**: the APK from [the latest release](https://github.com/cuginoAle/web-radio/releases/latest), installed over the old version.
 - **An update keeps all data** (favourites, listening time, the catalogue) as long as the signing key and `android.package` are unchanged and `versionCode` is higher.
 

@@ -1,7 +1,7 @@
 import { Pressable, Text, View } from 'react-native';
 
 import type { InstallStatus } from '@/hooks/updates/useInstallUpdate';
-import { styles } from '@/screens/discover/UpdateNotice/styles';
+import { styles } from '@/components/UpdateNotice/styles';
 
 type Props = {
   version: string;
