@@ -66,6 +66,14 @@ _Avoid_: player (for the instance)
 The list of UUIDs, frozen when listening starts, from which previous and next pick the adjacent station.
 _Avoid_: queue, playlist
 
+**Last station** (`LastStation`):
+The station most recently audible in the audio session, remembered after the app closes. Pausing, a station that fails to play and a catalogue refresh do not change it.
+_Avoid_: last played, recent station, history
+
+**Autostart** (`Autostart`):
+The audio session playing the last station on its own when the app starts fresh. Bringing an app that is still running back to the front does not autostart it.
+_Avoid_: autoplay, resume (resume means un-pausing)
+
 **Listening time** (`ListeningTime`):
 The all-time total of seconds during which a station's audio was actually audible; it applies to any station, favourite or not. Loading, buffering and pausing do not count.
 _Avoid_: play time, history, statistics

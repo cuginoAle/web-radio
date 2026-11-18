@@ -3,11 +3,14 @@ import Constants from 'expo-constants';
 import { openDatabaseAsync } from 'expo-sqlite';
 
 import { prepareDatabase } from '@/db/prepareDatabase';
+import { getLastStation, setLastStation } from '@/db/queries/lastStation';
 import { addListeningTime } from '@/db/queries/listeningTime';
 import { getStation } from '@/db/queries/stations';
 import { seedDefaultFavorites } from '@/db/writes/seedDefaultFavorites';
 import { toSnapshot } from '@/helpers/player/toSnapshot';
+import { autostart } from '@/services/audio/autostart';
 import { createAudioSession } from '@/services/audio/createAudioSession';
+import { rememberLastStation } from '@/services/audio/rememberLastStation';
 import { trackListening } from '@/services/audio/trackListening';
 import { createCatalogSync } from '@/services/catalog-sync/createCatalogSync';
 import { loadCatalogState } from '@/services/catalog-sync/loadCatalogState';
@@ -31,15 +34,13 @@ export async function bootstrap() {
     userAgent,
     installedVersion: Constants.expoConfig?.version ?? 'unknown', // unparseable: never "newer"
   });
-  const audio = createAudioSession({
-    player: createAudioPlayer(null),
-    store: globalStore,
-    resolveStation: async (uuid) => {
-      const station = await getStation(db, uuid);
-      return station && toSnapshot(station);
-    },
-  });
+  const resolveStation = async (uuid: string) => {
+    const station = await getStation(db, uuid);
+    return station && toSnapshot(station);
+  };
+  const audio = createAudioSession({ player: createAudioPlayer(null), store: globalStore, resolveStation });
   trackListening(globalStore, (uuid, seconds) => void addListeningTime(db, uuid, seconds).catch(() => undefined));
+  rememberLastStation(globalStore, (station) => void setLastStation(db, station).catch(() => undefined));
   await setAudioModeAsync({
     shouldPlayInBackground: true,
     interruptionMode: 'doNotMixPersistent', // full audio focus, required for lock screen controls
@@ -51,4 +52,6 @@ export async function bootstrap() {
 
   setRuntime({ db, audio, sync: createCatalogSync({ db, client }), updates, installer });
   await loadCatalogState();
+  // Bootstrap runs once per process, so this fires on a cold start only; the splash covers it, so no tap can race it.
+  await autostart(audio, await getLastStation(db), resolveStation).catch(() => undefined);
 }
