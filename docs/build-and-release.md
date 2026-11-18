@@ -39,7 +39,7 @@ Each stage, from the command you run to what reaches users:
 
 ### The expo-audio patch
 
-Now playing comes from a patch to expo-audio that reads ICY metadata ([ADR 0003](adr/0003-patch-expo-audio-icy-metadata.md)):
+Now playing comes from a patch to expo-audio that reads ICY metadata ([ADR 0003](adr/0003-patch-expo-audio-icy-metadata.md)). The same patch makes swiping the app away from recents stop playback and end the app (*Closing the app* in the [glossary](../GLOSSARY.md)):
 
 - `patches/expo-audio.patch` is applied by pnpm (`patchedDependencies` in `pnpm-workspace.yaml`).
 - `package.json` → `expo.autolinking.android.buildFromSource: ["expo-audio"]` makes Gradle compile expo-audio from source. **Without it, Gradle uses the prebuilt library and silently ignores the patch**: the app builds and plays, but the song title never appears.

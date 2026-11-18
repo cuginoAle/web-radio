@@ -74,6 +74,10 @@ _Avoid_: last played, recent station, history
 The audio session playing the last station on its own when the app starts fresh. Bringing an app that is still running back to the front does not autostart it.
 _Avoid_: autoplay, resume (resume means un-pausing)
 
+**Closing the app**:
+Swiping NoSpyFi away from the recent apps screen, playing or paused. It ends the audio session and the app with it, so the next open is a fresh start that autostarts the last station.
+_Avoid_: kill, quit, exit, force stop (Android's own Settings action)
+
 **Listening time** (`ListeningTime`):
 The all-time total of seconds during which a station's audio was actually audible; it applies to any station, favourite or not. Loading, buffering and pausing do not count.
 _Avoid_: play time, history, statistics

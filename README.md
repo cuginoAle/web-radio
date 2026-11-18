@@ -33,7 +33,7 @@
 - **Favourites.** Starts with 22 hand-picked stations (classical, jazz, blues, 70s, prog rock). A favourite keeps playing even if it disappears from a later catalogue.
 - **Most played.** Your six favourite stations by real listening time, counted on your phone only.
 - **Now playing.** The song the station announces, when it announces one. Many stations don't, or send slogans instead.
-- **Background playback.** Keeps playing with the screen off, with media controls in the notification and on the lock screen.
+- **Background playback.** Keeps playing with the screen off, with media controls in the notification and on the lock screen. Swiping NoSpyFi away from recent apps stops it.
 - **Made for the car, too.** In landscape a side rail adds a clock and a *Back to apps* button that leaves the music playing, and the Android navigation bar stays out of the way.
 - **Free, and it stays free.** No ads, no in-app purchases, no premium tier. GPL-3.0 licensed.
 

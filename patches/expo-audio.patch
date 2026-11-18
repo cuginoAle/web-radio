@@ -313,6 +313,24 @@ index 0000000000000000000000000000000000000000..3d16febb1a50b4ae99b82fee023bf57d
 +    bands.reset()
 +  }
 +}
+diff --git a/android/src/main/java/expo/modules/audio/service/AudioControlsService.kt b/android/src/main/java/expo/modules/audio/service/AudioControlsService.kt
+index 53c36f7e3c0a0bcb8b4de1f5e6d2d3e214d3fbf2..2fd1ea79f6290200af709e5a6f162489d8131403 100644
+--- a/android/src/main/java/expo/modules/audio/service/AudioControlsService.kt
++++ b/android/src/main/java/expo/modules/audio/service/AudioControlsService.kt
+@@ -643,6 +643,13 @@ class AudioControlsService : MediaSessionService() {
+     notificationManager.cancel(notificationId)
+   }
+ 
++  // Web Radio patch (GLOSSARY: Closing the app): swiping the app away from recents stops playback and ends the
++  // process, so the next open is a fresh start that autostarts. Media3's default keeps playing on some ROMs.
++  override fun onTaskRemoved(rootIntent: Intent?) {
++    pauseAllPlayersAndStopSelf()
++    android.os.Process.killProcess(android.os.Process.myPid())
++  }
++
+   override fun onDestroy() {
+     super.onDestroy()
+ 
 diff --git a/build/AudioModule.types.d.ts b/build/AudioModule.types.d.ts
 index 0d63c9b949cfae7a101902fc3bb70fcf46094f68..1efd21532ff8538f2c163203f4fa2495a2c41574 100644
 --- a/build/AudioModule.types.d.ts
