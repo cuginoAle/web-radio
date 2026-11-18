@@ -47,7 +47,7 @@ No account. No sign-up. No ads. No analytics, no crash reporting, no third-party
 
 Your favourites, your listening time and your copy of the catalogue live in a database on your phone and never leave it. They aren't even included in Android's cloud backup.
 
-**Permissions:** internet and network status, background playback, audio settings. No location, microphone, camera, contacts or storage.
+**Permissions:** internet and network status, background playback, audio settings, install app updates (used only when you tap *Install*). No location, microphone, camera, contacts or storage.
 
 ### What leaves your phone
 
@@ -57,10 +57,11 @@ Your favourites, your listening time and your copy of the catalogue live in a da
 | You play a station | That station's streaming server | Your IP address and which station you're listening to, as with any radio player |
 | A station logo is shown | Whoever hosts that station's logo | Your IP address |
 | The station or logo uses plain HTTP (about a third do) | Anyone on the network path (Wi-Fi owner, ISP) | Which station you're listening to |
+| Once a day when you open the app, if you turned on *Check for updates*, and when you tap *Install* | GitHub (Microsoft), over HTTPS | Your IP address, and that a NoSpyFi app checked for or downloaded a new version |
 
 That's all. One caveat: each stream address is exactly what the broadcaster registered with the directory, and a few include the broadcaster's own tracking parameters. NoSpyFi passes them on unchanged, because removing them can break the stream.
 
-Don't take our word for it: the code is open, and every directory request goes through [`src/services/radio-browser/`](src/services/radio-browser/).
+Don't take our word for it: the code is open, and every directory request goes through [`src/services/radio-browser/`](src/services/radio-browser/), and the update check through [`src/services/update-check/`](src/services/update-check/).
 
 ## Honest limits
 
@@ -72,15 +73,32 @@ Don't take our word for it: the code is open, and every directory request goes t
 - **The catalogue is as good as the directory:** Radio Browser is community-maintained, so stations can be missing, mislabelled or offline. The station count describes your downloaded copy.
 - **The first download takes a few tens of MB** of data. Refreshes are the same size: there is no incremental update.
 - **Plain HTTP is allowed** because about a third of stations only stream that way ([ADR 0001](docs/adr/0001-global-cleartext-http.md)).
-- **Not in the Play Store or F-Droid yet**: install the APK from [Releases](https://github.com/cuginoAle/web-radio/releases).
+- **Not in the Play Store or F-Droid**: install with Obtainium or the APK (see [Install](#install)). Update checks are off unless you turn them on.
 
 ## Install
 
-1. Download the latest `NoSpyFi-<version>.apk` from [Releases](https://github.com/cuginoAle/web-radio/releases) on your Android device.
-2. Open it and allow your browser or file manager to install apps when Android asks.
-3. Open NoSpyFi and tap *Download catalogue*.
+### With Obtainium (Android 8 or newer, recommended)
 
-NoSpyFi never checks for updates itself, since that would mean contacting a server. To get new versions automatically, add this repository to [Obtainium](https://github.com/ImranR98/Obtainium), a free open-source app that installs updates straight from GitHub Releases. Otherwise, check [Releases](https://github.com/cuginoAle/web-radio/releases) now and then. Updates install over the old version and keep your favourites.
+[Obtainium](https://github.com/ImranR98/Obtainium) is a free, open-source app that installs apps and their updates straight from where developers publish them.
+
+1. Install Obtainium. Already use F-Droid or IzzyOnDroid? Install it from there. Otherwise download `app-release.apk` from [Obtainium's Releases](https://github.com/ImranR98/Obtainium/releases) (not the `fdroid` one).
+2. In Obtainium, tap *Add App*, paste this address, tap *Add*, then install NoSpyFi:
+   ```
+   https://github.com/cuginoAle/web-radio
+   ```
+3. Open NoSpyFi. When it asks about checking for new versions, answer *No, I use Obtainium or update by hand*: Obtainium already tells you. Then tap *Download catalogue*.
+
+### Without Obtainium (Android 7, or if you'd rather not)
+
+1. On your Android device, download `NoSpyFi-<version>.apk` from [the latest release](https://github.com/cuginoAle/web-radio/releases/latest).
+2. Open it and allow your browser or file manager to install apps when Android asks.
+3. Open NoSpyFi. When it asks about checking for new versions, answer *Yes*, then tap *Download catalogue*.
+
+When a new version is out, NoSpyFi shows a notice on its home screen: tap *Install*. Installing stops the radio. The first time, Android asks you to allow NoSpyFi to install apps.
+
+On phones with Google Play, Play Protect may offer to scan NoSpyFi: *Scan app* sends the app to Google; *More details → Install without scanning* doesn't.
+
+Updates install over the old version and keep your favourites.
 
 ## For developers
 

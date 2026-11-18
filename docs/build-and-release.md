@@ -1,6 +1,6 @@
 # Build, distribution and release
 
-This document covers everything from turning the source into an APK to getting a new version onto users' phones. NoSpyFi has no server and is not in any app store, so there's no deploy step in the usual sense: **distribution is a GitHub Release with the signed APK attached**. Users install it by hand or through [Obtainium](https://github.com/ImranR98/Obtainium).
+This document covers everything from turning the source into an APK to getting a new version onto users' phones. NoSpyFi has no server and is not in any app store, so there's no deploy step in the usual sense: **distribution is a GitHub Release with the signed APK attached**. Users install it through [Obtainium](https://github.com/ImranR98/Obtainium) or by hand, and the app's opt-in update check offers new versions to those without Obtainium.
 
 Each stage, from the command you run to what reaches users:
 
@@ -195,9 +195,11 @@ While `gh` is logged in with this token, it can't touch your other repositories.
 
 ## 8. How updates reach users
 
-- **The app never checks for updates itself.** It would have to contact a server ([ADR 0004](adr/0004-network-limited-to-directory-and-stations.md)).
-- **Obtainium** users add the repository URL once. Obtainium watches GitHub Releases and installs new APKs.
-- **Everyone else** downloads the APK from the Releases page and installs it over the old version.
+How users get releases is decided in [ADR 0006](adr/0006-releases-through-github-obtainium-and-an-update-check.md).
+
+- **Obtainium** users add the repository URL once. Obtainium watches GitHub Releases and installs new APKs. This is the README's recommended path.
+- **The update check** is for everyone else (Android 7, or no Obtainium). It is off unless the user turns it on (welcome screen, or *About NoSpyFi*). Then, at most once a day when the app opens, it asks GitHub's latest-release API and shows a notice on the home screen; *Install* downloads the APK and hands it to Android's installer. Code: [`src/services/update-check/`](../src/services/update-check/) and [`src/services/update-install/`](../src/services/update-install/).
+- **First install without Obtainium**: the APK from [the latest release](https://github.com/cuginoAle/web-radio/releases/latest), installed over the old version.
 - **An update keeps all data** (favourites, listening time, the catalogue) as long as the signing key and `android.package` are unchanged and `versionCode` is higher.
 
 ## 9. Troubleshooting
